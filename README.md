@@ -71,16 +71,116 @@ Based on MIT CSAIL's paper [arXiv:2512.24601v1](https://arxiv.org/abs/2512.24601
 
 **No Anthropic API key needed** - just use Claude Code's built-in capabilities.
 
-## Quick Start
+## System 1: Session Persistence
 
-### Session Persistence (Always Use)
+**Problem**: Claude's context window compacts during long sessions, causing memory loss.
 
-When context compacts, Claude reads these files to recover state:
-- `context.md` - Current goal & key decisions
-- `todos.md` - Task progress tracking
-- `insights.md` - Accumulated learnings
+**Solution**: Three markdown files that Claude reads to recover state after compaction.
 
-### Processing Large Documents (RLM)
+### The Three Persistence Files
+
+| File | Purpose | When to Update |
+|------|---------|----------------|
+| `context.md` | Current goal, key decisions, important files | At task start, after major decisions |
+| `todos.md` | Task progress tracking with phases | When starting/completing tasks |
+| `insights.md` | Accumulated learnings & patterns | When discovering something reusable |
+
+### How It Works
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  SESSION PERSISTENCE FLOW                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  START SESSION                                                  │
+│       ↓                                                         │
+│  Read context.md, todos.md, insights.md                         │
+│       ↓                                                         │
+│  Understand: What are we doing? What's done? What's pending?    │
+│       ↓                                                         │
+│  WORK ON TASKS                                                  │
+│       ↓                                                         │
+│  Update files as you go:                                        │
+│  • Complete a task → Mark done in todos.md                      │
+│  • Make a decision → Document in context.md                     │
+│  • Learn something → Add to insights.md                         │
+│       ↓                                                         │
+│  [CONTEXT COMPACTION HAPPENS]                                   │
+│       ↓                                                         │
+│  Read all 3 files again → Full state recovered                  │
+│       ↓                                                         │
+│  Continue seamlessly                                            │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### File Templates
+
+**context.md**
+```markdown
+# Context
+## Current Goal
+[What we're trying to accomplish]
+
+## Key Decisions Made
+1. [Decision 1 and why]
+2. [Decision 2 and why]
+
+## Important Files
+| File | Purpose |
+|------|---------|
+| `file.py` | [What it does] |
+
+## Notes for Future Self
+- [Important context that might be lost]
+```
+
+**todos.md**
+```markdown
+# Todos
+## In Progress
+- [ ] [Current task]
+
+## Pending
+- [ ] [Next task]
+
+## Completed (This Session)
+### Phase 1: [Phase Name]
+- [x] [Completed task]
+```
+
+**insights.md**
+```markdown
+# Insights
+## Key Learnings
+### [Topic]
+[What was learned and why it matters]
+
+## Patterns Identified
+- [Pattern that worked well]
+
+## Gotchas & Pitfalls
+- [Thing to avoid]
+```
+
+### Quick Start
+
+```bash
+# After context compaction, Claude automatically reads:
+cat context.md todos.md insights.md
+
+# Then continues where it left off
+```
+
+---
+
+## System 2: RLM for Large Documents
+
+**Problem**: Documents larger than ~200K tokens cannot fit in context.
+
+**Solution**: Chunk documents, process with parallel subagents, aggregate results.
+
+### Processing Large Documents
 
 ```bash
 # 1. Probe structure

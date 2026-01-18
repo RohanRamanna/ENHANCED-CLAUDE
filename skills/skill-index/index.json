@@ -139,8 +139,8 @@
       "summary": "REST API with Hono, Bun and SQLite",
       "description": "Build REST APIs with Hono framework, Bun runtime, and SQLite database. Use when creating web APIs with Bun, using Hono framework, working with bun:sqlite, or building CRUD applications.",
       "dependencies": [],
-      "lastUsed": "2026-01-15",
-      "useCount": 2,
+      "lastUsed": "2026-01-18",
+      "useCount": 4,
       "successCount": 2,
       "failureCount": 0
     },

@@ -94,27 +94,105 @@ After using a skill, check:
 
 **Purpose**: Maintain continuity across context compaction.
 
-### Files to Check When Resuming
+**Problem**: When context compacts during long sessions, Claude loses memory of what was being worked on.
 
-| File | Purpose | Action |
-|------|---------|--------|
-| `context.md` | Current goal & key decisions | Read first to understand what we're doing |
-| `todos.md` | Task progress tracking | Check what's done, what's pending |
-| `insights.md` | Accumulated learnings | Reference for patterns & gotchas |
+**Solution**: Three markdown files that persist state to disk.
 
-### How to Use
+### The Three Files
 
-**When starting a task**:
-1. Update `context.md` with the goal
-2. Add tasks to `todos.md`
+| File | Purpose | When to Update |
+|------|---------|----------------|
+| `context.md` | Current goal, key decisions, important files | At task start, after major decisions |
+| `todos.md` | Task progress tracking with phases | When starting/completing tasks |
+| `insights.md` | Accumulated learnings & patterns | When discovering something reusable |
 
-**During work**:
-1. Mark todos complete as you go
-2. Add discoveries to `insights.md`
+### Session Persistence Flow
 
-**After context compaction**:
-1. Read all 3 files to recover state
-2. Continue from where you left off
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  SESSION PERSISTENCE PROTOCOL                    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ON SESSION START / AFTER COMPACTION:                           │
+│  ─────────────────────────────────────                          │
+│  1. Read context.md    → What are we doing?                     │
+│  2. Read todos.md      → What's done? What's pending?           │
+│  3. Read insights.md   → What patterns should I remember?       │
+│                                                                 │
+│  DURING WORK:                                                   │
+│  ───────────                                                    │
+│  • Complete a task     → Mark [x] in todos.md                   │
+│  • Make a decision     → Document in context.md                 │
+│  • Learn something     → Add to insights.md                     │
+│  • Start new phase     → Add phase header in todos.md           │
+│                                                                 │
+│  ON TASK COMPLETION:                                            │
+│  ──────────────────                                             │
+│  • Update all 3 files with final state                          │
+│  • Commit changes to git                                        │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### File Structures
+
+**context.md** - Current State
+```markdown
+# Context
+## Current Goal
+[1-2 sentences on what we're trying to accomplish]
+
+## Key Decisions Made
+1. [Decision and reasoning]
+
+## Important Files
+| File | Purpose |
+|------|---------|
+| `path/file.py` | [What it does] |
+
+## Notes for Future Self
+- [Critical context that might be lost]
+```
+
+**todos.md** - Progress Tracking
+```markdown
+# Todos
+## In Progress
+- [ ] [Current task being worked on]
+
+## Pending
+- [ ] [Next task]
+
+## Completed (This Session)
+### Phase 1: [Phase Name]
+- [x] [Completed task with brief note]
+```
+
+**insights.md** - Institutional Knowledge
+```markdown
+# Insights
+## Key Learnings
+### [Topic]
+[What was learned and why it matters]
+
+## Patterns Identified
+- [Pattern]: [When to use it]
+
+## Gotchas & Pitfalls
+- [Mistake to avoid]: [Why]
+```
+
+### Recovery Example
+
+After context compaction:
+```bash
+# Claude automatically reads these files:
+Read context.md   # "We're implementing Enhanced Claude..."
+Read todos.md     # "Phase 7 complete, no pending tasks..."
+Read insights.md  # "Auto-skills use scoring algorithm..."
+
+# Then continues seamlessly with full context
+```
 
 ---
 
