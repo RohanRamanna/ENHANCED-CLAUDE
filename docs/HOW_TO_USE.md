@@ -1,31 +1,156 @@
 # How to Use Enhanced Claude
 
-This repository provides **four integrated systems** for Claude Code. This guide covers all of them.
+This repository provides **four integrated systems** for Claude Code, all powered by **automatic hooks**. Just start Claude Code in this directory and everything works automatically.
 
 ---
 
 ## Table of Contents
 
-1. [Session Persistence](#system-1-session-persistence) - Memory across context compaction
-2. [RLM for Large Documents](#system-2-rlm-for-large-documents) - Processing oversized inputs
-3. [Auto-Skills](#system-3-auto-skills) - Self-improving skill system
-4. [Skills Library](#system-4-skills-library) - On-demand skill loading
-5. [Prerequisites](#prerequisites)
-6. [Quick Start](#quick-start)
-7. [Detailed Workflow](#detailed-workflow)
-8. [Tool Reference](#tool-reference)
-9. [Examples](#examples)
-10. [Troubleshooting](#troubleshooting)
+1. [Quick Start](#quick-start) - Get running in 30 seconds
+2. [The Hooks System](#the-hooks-system) - How automation works
+3. [System 1: Session Persistence](#system-1-session-persistence) - Memory across context compaction
+4. [System 2: RLM for Large Documents](#system-2-rlm-for-large-documents) - Processing oversized inputs
+5. [System 3: Auto-Skills](#system-3-auto-skills) - Self-improving skill system
+6. [System 4: Skills Library](#system-4-skills-library) - On-demand skill loading
+7. [Installation](#installation)
+8. [RLM Detailed Workflow](#rlm-detailed-workflow)
+9. [Tool Reference](#tool-reference)
+10. [Examples](#examples)
+11. [Troubleshooting](#troubleshooting)
+
+---
+
+## Quick Start
+
+### Step 1: Install Hooks (One-Time Setup)
+
+The hooks are already configured in `~/.claude/settings.json`. If you're setting up fresh:
+
+```bash
+# Copy hooks to your Claude config
+cp -r hooks/* ~/.claude/hooks/
+chmod +x ~/.claude/hooks/*.py
+```
+
+### Step 2: Just Use Claude Code
+
+That's it! All 4 systems work automatically:
+
+| What Happens | Automatic Behavior |
+|--------------|-------------------|
+| You send a message | Skills are matched and suggested |
+| You paste large text (>50K chars) | RLM workflow is suggested |
+| Context compacts | Persistence files are auto-loaded |
+| You solve via trial-and-error | Skill creation is offered |
+| You read a SKILL.md | Usage is tracked |
+
+**No manual intervention needed.**
+
+---
+
+## The Hooks System
+
+Enhanced Claude is powered by **5 Python hooks** that run automatically:
+
+```
+~/.claude/hooks/
+├── skill-matcher.py        # Suggests matching skills (UserPromptSubmit)
+├── large-input-detector.py # Detects large inputs, suggests RLM (UserPromptSubmit)
+├── skill-tracker.py        # Tracks skill usage (PostToolUse)
+├── detect-learning.py      # Detects trial-and-error moments (Stop)
+└── session-recovery.py     # Loads persistence files (SessionStart)
+```
+
+### Hook Configuration
+
+All hooks are configured in `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {"type": "command", "command": "python3 ~/.claude/hooks/skill-matcher.py"},
+          {"type": "command", "command": "python3 ~/.claude/hooks/large-input-detector.py"}
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {"type": "command", "command": "python3 ~/.claude/hooks/skill-tracker.py"}
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {"type": "command", "command": "python3 ~/.claude/hooks/detect-learning.py"}
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {"type": "command", "command": "python3 ~/.claude/hooks/session-recovery.py"}
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          {"type": "command", "command": "python3 ~/.claude/hooks/session-recovery.py"}
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Hook Events Explained
+
+| Event | When It Fires | Hook | Action |
+|-------|--------------|------|--------|
+| `UserPromptSubmit` | Every user message | `skill-matcher.py` | Scores and suggests matching skills |
+| `UserPromptSubmit` | Every user message | `large-input-detector.py` | Detects large inputs, suggests RLM |
+| `PostToolUse` | After Read tool | `skill-tracker.py` | Updates skill metadata on SKILL.md reads |
+| `Stop` | Before Claude finishes | `detect-learning.py` | Detects trial-and-error, offers skill creation |
+| `SessionStart` | After /compact or /resume | `session-recovery.py` | Injects persistence files into context |
 
 ---
 
 ## System 1: Session Persistence
 
-**Problem**: When Claude's context window fills up, it compacts and loses memory of what you were working on.
+**Problem**: When Claude's context window fills up, it compacts and loses memory.
 
-**Solution**: Three markdown files that Claude reads when resuming to recover full state.
+**Solution**: Three markdown files + automatic hook that loads them after compaction.
 
-### The Three Files
+### How It Works (Automatic)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  SESSION PERSISTENCE (AUTOMATIC)                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  CONTEXT COMPACTS                                               │
+│       ↓                                                         │
+│  SessionStart hook fires (matcher: "compact")                   │
+│       ↓                                                         │
+│  session-recovery.py runs automatically                         │
+│       ↓                                                         │
+│  Reads and INJECTS into Claude's context:                       │
+│    • context.md  → Current goal & decisions                     │
+│    • todos.md    → Task progress                                │
+│    • insights.md → Accumulated learnings                        │
+│       ↓                                                         │
+│  Claude continues with full context restored                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### The Three Persistence Files
 
 | File | Purpose | When to Update |
 |------|---------|----------------|
@@ -33,98 +158,90 @@ This repository provides **four integrated systems** for Claude Code. This guide
 | `todos.md` | Task progress tracking with phases | When starting/completing tasks |
 | `insights.md` | Accumulated learnings & patterns | When discovering something reusable |
 
-### Session Persistence Flow
+### What You See After Compaction
+
+After `/compact` or automatic compaction, Claude automatically receives:
+
+```
+============================================================
+SESSION RECOVERED - Persistence files loaded automatically
+============================================================
+
+### Current Goal & Decisions (context.md)
+[Full contents of context.md]
+
+### Task Progress (todos.md)
+[Full contents of todos.md]
+
+### Accumulated Learnings (insights.md)
+[Full contents of insights.md]
+
+============================================================
+Continue where you left off. Update these files as you work.
+============================================================
+```
+
+**No manual intervention needed** - Claude just continues where it left off.
+
+---
+
+## System 2: RLM for Large Documents
+
+**Problem**: Documents larger than ~200K tokens cannot fit in Claude's context window.
+
+**Solution**: Automatic detection + suggested workflow for chunking and processing.
+
+### How It Works (Automatic Detection)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                  SESSION PERSISTENCE PROTOCOL                    │
+│                  RLM DETECTION (AUTOMATIC)                       │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  ON SESSION START / AFTER COMPACTION:                           │
-│  1. Read context.md    → What are we doing?                     │
-│  2. Read todos.md      → What's done? What's pending?           │
-│  3. Read insights.md   → What patterns should I remember?       │
+│  USER PASTES LARGE TEXT                                         │
+│       ↓                                                         │
+│  UserPromptSubmit hook fires                                    │
+│       ↓                                                         │
+│  large-input-detector.py analyzes input size                    │
+│       ↓                                                         │
+│  IF input > 50K chars:                                          │
+│    → Soft suggestion: "Consider using RLM workflow"             │
 │                                                                 │
-│  DURING WORK:                                                   │
-│  • Complete a task     → Mark [x] in todos.md                   │
-│  • Make a decision     → Document in context.md                 │
-│  • Learn something     → Add to insights.md                     │
-│                                                                 │
-│  ON TASK COMPLETION:                                            │
-│  • Update all 3 files with final state                          │
-│  • Commit changes to git                                        │
+│  IF input > 150K chars:                                         │
+│    → Strong recommendation with full RLM workflow               │
+│       ↓                                                         │
+│  Claude receives suggestion and guides user through RLM         │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Example: context.md
+### What You See for Large Inputs
 
-```markdown
-# Context
+**For inputs 50K-150K characters:**
+```
+[LARGE INPUT NOTICE]
+Input size: 60,000 characters (~15,000 tokens)
 
-## Current Goal
-Implement user authentication for the API
-
-## Key Decisions Made
-1. Using JWT tokens (not sessions) - better for stateless APIs
-2. Storing refresh tokens in Redis - fast expiration handling
-
-## Important Files
-| File | Purpose |
-|------|---------|
-| `auth/middleware.py` | JWT validation |
-| `auth/tokens.py` | Token generation |
-
-## Notes for Future Self
-- The JWT secret is in environment variables
-- Redis connection pool size is set to 10
+Consider using RLM workflow if you need comprehensive analysis:
+- RLM tools available in: /path/to/rlm_tools/
+- Run: python rlm_tools/probe.py <file> to analyze structure
 ```
 
-### Example: todos.md
-
-```markdown
-# Todos
-
-## In Progress
-- [ ] Create auth middleware
-
-## Pending
-- [ ] Add rate limiting
-- [ ] Write integration tests
-
-## Completed (This Session)
-### Phase 1: Setup
-- [x] Set up JWT library
-- [x] Create user model
-- [x] Configure Redis connection
+**For inputs >150K characters:**
 ```
+[LARGE INPUT DETECTED - RLM RECOMMENDED]
+Input size: 200,000 characters (~50,000 tokens)
+This exceeds comfortable context limits.
 
-### Example: insights.md
+RECOMMENDED: Use RLM (Recursive Language Model) workflow:
+1. Save input to file: rlm_context/input.txt
+2. Probe structure: python rlm_tools/probe.py rlm_context/input.txt
+3. Chunk: python rlm_tools/chunk.py rlm_context/input.txt --output rlm_context/chunks/
+4. Process chunks with parallel Task subagents
+5. Aggregate: python rlm_tools/aggregate.py rlm_context/results/
 
-```markdown
-# Insights
-
-## Key Learnings
-### JWT Best Practices
-- Refresh tokens should be rotated on each use
-- Access tokens should be short-lived (15 min)
-- Store refresh tokens in Redis with TTL
-
-## Patterns Identified
-- Use middleware for auth, not decorators
-- Connection pooling is essential for Redis
-
-## Gotchas & Pitfalls
-- Don't store JWT secret in code - use env vars
-- Redis connections timeout after 30s of inactivity
+This ensures accurate processing of the full document.
 ```
-
-### Recovery After Compaction
-
-When context compacts, Claude automatically:
-1. Reads all 3 persistence files
-2. Understands current goal and progress
-3. Continues seamlessly where it left off
 
 ---
 
@@ -132,45 +249,68 @@ When context compacts, Claude automatically:
 
 **Problem**: Claude solves the same problems repeatedly without remembering solutions.
 
-**Solution**: A self-improving skill system that automatically matches, tracks, learns, and improves.
+**Solution**: Three hooks that automatically match, track, and learn skills.
 
-### How Auto-Skills Work
+### How It Works (Fully Automatic)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    AUTO-SKILLS LOOP                              │
+│                    AUTO-SKILLS (AUTOMATIC)                       │
 ├─────────────────────────────────────────────────────────────────┤
-│ 1. SKILL MATCHING (every request)                               │
-│    → Score each skill against user request                      │
-│    → Load skill if score ≥ 10                                   │
 │                                                                 │
-│ 2. SKILL TRACKING (after using skill)                           │
-│    → useCount++, lastUsed = today                               │
-│    → On success: successCount++                                 │
-│    → On failure: failureCount++                                 │
+│  1. SKILL MATCHING (skill-matcher.py)                           │
+│     Trigger: Every user message                                 │
+│     Action: Scores skills, suggests matches (score ≥10)         │
 │                                                                 │
-│ 3. AUTO-LEARNING (after solving without skill)                  │
-│    → If 2+ attempts were needed (trial-and-error)               │
-│    → Offer to save as new skill                                 │
+│  2. SKILL TRACKING (skill-tracker.py)                           │
+│     Trigger: After reading any SKILL.md file                    │
+│     Action: Updates useCount, lastUsed in metadata.json         │
 │                                                                 │
-│ 4. AUTO-IMPROVEMENT (after skill usage)                         │
-│    → If workaround was needed → update skill                    │
-│    → If enhancement found → suggest improvement                 │
+│  3. LEARNING DETECTION (detect-learning.py)                     │
+│     Trigger: Before Claude finishes responding                  │
+│     Action: Detects 3+ failures → success pattern               │
+│             Suggests creating a new skill                       │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
+```
+
+### Skill Matching Example
+
+**User says**: "help me build a bun sqlite api with hono"
+
+**Hook automatically injects**:
+```
+[SKILL MATCH] Relevant skills detected:
+  - hono-bun-sqlite-api (score:39): REST API with Hono, Bun and SQLite
+    Load with: cat ~/.claude/skills/hono-bun-sqlite-api/SKILL.md
+```
+
+### Learning Detection Example
+
+After Claude solves something with multiple failed attempts:
+
+```
+[LEARNING MOMENT DETECTED]
+Detected 3 failures followed by success
+
+You solved a problem through trial-and-error. Consider saving this as a reusable skill:
+1. Run /skill-creator to document the solution
+2. Or add to insights.md for future reference
+
+This helps avoid re-discovering the same solution later.
 ```
 
 ### Skill Matching Algorithm
 
 | Match Type | Points |
 |------------|--------|
-| Exact tag match | +3 |
-| Category match | +5 |
-| Summary keyword | +2 |
-| Description keyword | +1 |
+| Exact tag match | +3 per tag |
+| Skill name word match | +3 per word |
+| Summary keyword match | +2 per word |
+| Tag word match | +2 per tag |
 | Recent use (< 7 days) | +1 |
-| High success rate (> 80%) | +2 |
 
-**Thresholds**: ≥10 = load immediately, 5-9 = mention as option, <5 = no match
+**Thresholds**: ≥10 = strong match (suggest), 5-9 = possible match, <5 = no match
 
 ---
 
@@ -193,233 +333,164 @@ When context compacts, Claude automatically:
 
 ### How to Use Skills
 
+**Automatic** (via skill-matcher hook):
+```
+Just describe what you want. Matching skills are suggested automatically.
+```
+
+**Manual**:
 ```bash
 # Invoke a skill directly
 /skill-name
 
-# Or let auto-matching find the right skill
-# Just describe what you want and the system matches automatically
+# Or read the skill file
+cat ~/.claude/skills/skill-name/SKILL.md
 ```
 
 ---
 
-## System 2: RLM for Large Documents
+## Installation
 
-**Problem**: Documents larger than ~200K tokens cannot fit in Claude's context window.
+### Prerequisites
 
-**Solution**: Chunk the document, process with parallel subagents, aggregate results.
+- **Claude Code** (CLI) - The system uses Claude Code's native tools
+- **Python 3.8+** - For running hooks and RLM tools
 
----
+### One-Time Setup
 
-## Prerequisites
-
-### Required
-- **Claude Code** (CLI) - The RLM system uses Claude Code's native tools
-- **Python 3.8+** - For running the RLM tools
-
-### Optional
-- `pdfplumber` - For PDF text extraction (`pip install pdfplumber`)
-- `RestrictedPython` - For safe code execution (`pip install RestrictedPython`)
-
-Install all optional dependencies:
 ```bash
+# 1. Clone or download this repository
+cd "/path/to/PERSISTANT MEMORY"
+
+# 2. Create hooks directory
+mkdir -p ~/.claude/hooks
+
+# 3. Copy hook scripts (if not already done)
+# The hooks are in this repo and should be copied to ~/.claude/hooks/
+# They are:
+#   - skill-matcher.py
+#   - large-input-detector.py
+#   - skill-tracker.py
+#   - detect-learning.py
+#   - session-recovery.py
+
+# 4. Make hooks executable
+chmod +x ~/.claude/hooks/*.py
+
+# 5. Verify settings.json has hook configuration
+cat ~/.claude/settings.json
+
+# 6. Reload hooks in Claude Code
+# Run: /hooks
+# Or restart Claude Code
+```
+
+### Optional Dependencies
+
+```bash
+# For PDF processing
+pip install pdfplumber
+
+# For safe code execution (sandbox.py)
+pip install RestrictedPython
+
+# Or install all
 pip install -r requirements.txt
 ```
 
 ---
 
-## Quick Start
+## RLM Detailed Workflow
 
-### The 30-Second Version
-
-Got a large document? Here's the fastest path:
-
-```bash
-# 1. Extract text (if PDF)
-python -c "import pdfplumber; print(pdfplumber.open('doc.pdf').pages[0].extract_text()[:100])"
-
-# 2. Probe it
-python rlm_tools/probe.py your_document.txt
-
-# 3. Chunk it
-python rlm_tools/chunk.py your_document.txt --output rlm_context/chunks/
-
-# 4. Ask Claude Code to process with Task subagents
-
-# 5. Aggregate results
-python rlm_tools/aggregate.py rlm_context/results/
-```
-
----
-
-## Detailed Workflow
+When the large-input-detector suggests RLM, follow this workflow:
 
 ### Step 1: Prepare Your Input
 
-**For text files**: Copy or move to the working directory
 ```bash
+# For text files
 cp /path/to/large_document.txt rlm_context/input.txt
-```
 
-**For PDFs**: Extract text first
-```python
+# For PDFs
+python -c "
 import pdfplumber
-
-with pdfplumber.open("document.pdf") as pdf:
-    text = "\n\n".join(page.extract_text() or "" for page in pdf.pages)
-
-with open("rlm_context/input.txt", "w") as f:
-    f.write(text)
+with pdfplumber.open('document.pdf') as pdf:
+    text = '\n'.join(p.extract_text() or '' for p in pdf.pages)
+open('rlm_context/input.txt', 'w').write(text)
+"
 ```
 
 ### Step 2: Probe the Structure
-
-Analyze your input to understand its size and get chunking recommendations:
 
 ```bash
 python rlm_tools/probe.py rlm_context/input.txt
 ```
 
-**Example output**:
+**Output**:
 ```
 === File Analysis ===
 File: rlm_context/input.txt
-Size: 88,750 characters
-Lines: 1,247
-Estimated tokens: ~22,187
-
-Format detected: text
-Recommended strategy: size
-Recommended chunks: 5 (at 20,000 chars each)
-```
-
-**Options**:
-```bash
-# JSON output for programmatic use
-python rlm_tools/probe.py input.txt --json
-
-# Analyze multiple files
-python rlm_tools/probe.py file1.txt file2.txt file3.txt
+Size: 500,000 characters
+Estimated tokens: ~125,000
+Recommended chunks: 25 (at 200,000 chars each)
 ```
 
 ### Step 3: Chunk the Input
-
-Split the large input into processable pieces:
 
 ```bash
 python rlm_tools/chunk.py rlm_context/input.txt --output rlm_context/chunks/
 ```
 
-**Example output**:
-```
-Chunking: rlm_context/input.txt
-Strategy: size (20000 chars, 500 overlap)
-Output directory: rlm_context/chunks/
-
-Created 5 chunks:
-  chunk_001.txt: 20,035 chars (lines 1-293)
-  chunk_002.txt: 20,086 chars (lines 287-574)
-  chunk_003.txt: 20,018 chars (lines 568-858)
-  chunk_004.txt: 20,074 chars (lines 852-1211)
-  chunk_005.txt: 10,537 chars (lines 1205-1247)
-
-Manifest written to: rlm_context/chunks/manifest.json
-```
-
-**Chunking options**:
-```bash
-# Custom chunk size
-python rlm_tools/chunk.py input.txt --size 100000
-
-# Different strategies
-python rlm_tools/chunk.py input.txt --strategy headers    # Split by markdown headers
-python rlm_tools/chunk.py input.txt --strategy paragraphs # Split by paragraphs
-python rlm_tools/chunk.py input.txt --strategy lines      # Split by line count
-
-# Custom overlap (for context continuity)
-python rlm_tools/chunk.py input.txt --overlap 1000
-```
-
 ### Step 4: Process with Task Subagents
 
-This is where the magic happens. In Claude Code, spawn Task subagents to process each chunk **in parallel**:
-
-**Tell Claude Code**:
+Tell Claude Code:
 ```
-Process these chunks with Task subagents. For each chunk, extract [YOUR QUERY HERE]
+Process these chunks with Task subagents. For each chunk, extract [YOUR QUERY]
 and save results to rlm_context/results/
 ```
 
-**What Claude Code does internally**:
-```python
-# Spawns multiple Task subagents in parallel:
-Task(subagent_type="general-purpose", prompt="""
-  Read rlm_context/chunks/chunk_001.txt
-  Answer: What are the key findings about X?
-  Save your analysis to rlm_context/results/chunk_001.result.txt
-""")
-
-Task(subagent_type="general-purpose", prompt="""
-  Read rlm_context/chunks/chunk_002.txt
-  Answer: What are the key findings about X?
-  Save your analysis to rlm_context/results/chunk_002.result.txt
-""")
-# ... etc for all chunks
-```
-
-**Pro tip**: Claude Code can run 3-5 subagents in parallel for faster processing.
+Claude Code spawns parallel subagents automatically.
 
 ### Step 5: Aggregate Results
 
-Combine all chunk results into a final synthesized answer:
-
 ```bash
-python rlm_tools/aggregate.py rlm_context/results/
+python rlm_tools/aggregate.py rlm_context/results/ --query "Your original query"
 ```
 
-**Example output**:
-```
-=== Aggregated Results ===
-Processed 5 result files
+### Step 6: Get Final Answer
 
-Combined output written to: rlm_context/aggregated_results.txt
-```
-
-**Aggregation options**:
-```bash
-# Include original query for context
-python rlm_tools/aggregate.py results/ --query "What are the security vulnerabilities?"
-
-# Different output formats
-python rlm_tools/aggregate.py results/ --format json
-python rlm_tools/aggregate.py results/ --format summary
-
-# Save to specific file
-python rlm_tools/aggregate.py results/ --output final_answer.txt
-```
-
-### Step 6: Get Your Answer
-
-Read the aggregated results and Claude Code will synthesize the final answer:
-
-```bash
-cat rlm_context/aggregated_results.txt
-```
-
-Or simply ask Claude Code to read and summarize the aggregated results.
+Read the aggregated results or ask Claude to summarize them.
 
 ---
 
 ## Tool Reference
 
-### probe.py
+### Hooks
+
+| Hook | Event | Purpose |
+|------|-------|---------|
+| `skill-matcher.py` | UserPromptSubmit | Match skills to user prompts |
+| `large-input-detector.py` | UserPromptSubmit | Detect large inputs, suggest RLM |
+| `skill-tracker.py` | PostToolUse (Read) | Track SKILL.md reads |
+| `detect-learning.py` | Stop | Detect trial-and-error moments |
+| `session-recovery.py` | SessionStart | Load persistence files |
+
+### RLM Tools
+
+| Tool | Purpose |
+|------|---------|
+| `probe.py` | Analyze input structure and size |
+| `chunk.py` | Split large files into processable pieces |
+| `aggregate.py` | Combine chunk results into final answer |
+| `sandbox.py` | Safe Python code execution |
+
+### probe.py Options
 
 | Flag | Description | Default |
 |------|-------------|---------|
 | `<file>` | File(s) to analyze | Required |
 | `--json` | Output in JSON format | False |
 
-### chunk.py
+### chunk.py Options
 
 | Flag | Description | Default |
 |------|-------------|---------|
@@ -429,7 +500,7 @@ Or simply ask Claude Code to read and summarize the aggregated results.
 | `--output` | Output directory | `./chunks/` |
 | `--overlap` | Character overlap between chunks | 500 |
 
-### aggregate.py
+### aggregate.py Options
 
 | Flag | Description | Default |
 |------|-------------|---------|
@@ -437,185 +508,101 @@ Or simply ask Claude Code to read and summarize the aggregated results.
 | `--query` | Original query for context | None |
 | `--format` | `text`, `json`, `summary` | `text` |
 | `--output` | Output file path | `aggregated_results.txt` |
-| `--pattern` | File pattern to match | `*.txt` |
-
-### sandbox.py
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--code` | Python code to execute | None |
-| `--file` | Python file to execute | None |
-| `--context` | Context string | None |
-| `--context-file` | File containing context | None |
 
 ---
 
 ## Examples
 
-### Example 1: Analyzing a Research Paper
+### Example 1: Normal Usage (Auto-Skills)
 
-**Goal**: Extract all methodology details from a 50-page paper
+**You say**: "help me set up a REST API with Bun"
 
-```bash
-# 1. Extract PDF text
-python -c "
-import pdfplumber
-with pdfplumber.open('paper.pdf') as pdf:
-    text = '\n'.join(p.extract_text() or '' for p in pdf.pages)
-open('rlm_context/input.txt', 'w').write(text)
-"
+**What happens automatically**:
+1. `skill-matcher.py` runs, finds `hono-bun-sqlite-api` (score: 35+)
+2. Claude sees: `[SKILL MATCH] hono-bun-sqlite-api - Load with: cat ~/.claude/skills/...`
+3. Claude loads the skill and follows its instructions
+4. `skill-tracker.py` updates the skill's usage count
 
-# 2. Probe
-python rlm_tools/probe.py rlm_context/input.txt
-# Output: 150,000 chars, recommends 8 chunks
+### Example 2: Large Document Analysis
 
-# 3. Chunk
-python rlm_tools/chunk.py rlm_context/input.txt --output rlm_context/chunks/
+**You paste**: A 200,000 character document
 
-# 4. Tell Claude Code:
-# "Process each chunk to extract methodology details, save to results/"
+**What happens automatically**:
+1. `large-input-detector.py` runs, detects large input
+2. Claude sees: `[LARGE INPUT DETECTED - RLM RECOMMENDED]` with full workflow
+3. Claude guides you through the RLM process
 
-# 5. Aggregate
-python rlm_tools/aggregate.py rlm_context/results/ --query "methodology details"
-```
+### Example 3: Context Compaction Recovery
 
-### Example 2: Code Repository Analysis
+**Context compacts** during a long session
 
-**Goal**: Find all API endpoints in a large codebase
+**What happens automatically**:
+1. `session-recovery.py` runs
+2. Claude receives full contents of context.md, todos.md, insights.md
+3. Claude continues exactly where it left off
 
-```bash
-# 1. Concatenate all relevant files
-find ./src -name "*.py" -exec cat {} \; > rlm_context/input.txt
+### Example 4: Learning Moment
 
-# 2. Probe
-python rlm_tools/probe.py rlm_context/input.txt
+**You solve a problem** after 3 failed attempts
 
-# 3. Chunk by size (code doesn't have headers)
-python rlm_tools/chunk.py rlm_context/input.txt --size 150000
-
-# 4. Tell Claude Code:
-# "Find all API endpoints (routes, handlers) in each chunk"
-
-# 5. Aggregate
-python rlm_tools/aggregate.py rlm_context/results/ --query "API endpoints"
-```
-
-### Example 3: Legal Document Review
-
-**Goal**: Extract all obligations and deadlines from a 200-page contract
-
-```bash
-# 1. Prepare (assuming text already extracted)
-cp contract.txt rlm_context/input.txt
-
-# 2. Probe
-python rlm_tools/probe.py rlm_context/input.txt
-# Output: 500,000 chars, recommends 25 chunks
-
-# 3. Chunk with more overlap for legal continuity
-python rlm_tools/chunk.py rlm_context/input.txt --overlap 2000
-
-# 4. Tell Claude Code:
-# "Extract all obligations, deadlines, and penalties from each chunk"
-
-# 5. Aggregate with JSON for structured output
-python rlm_tools/aggregate.py rlm_context/results/ --format json
-```
+**What happens automatically**:
+1. `detect-learning.py` analyzes the conversation
+2. Claude sees: `[LEARNING MOMENT DETECTED]`
+3. Claude offers to create a skill for the solution
 
 ---
 
 ## Troubleshooting
 
-### "File too large to read"
+### Hooks not running?
 
-**Solution**: That's exactly what this system is for! Use the chunking workflow.
-
-### Chunks are too small/large
-
-**Solution**: Adjust the `--size` parameter:
 ```bash
-# Larger chunks (fewer subagent calls, but may hit limits)
-python rlm_tools/chunk.py input.txt --size 300000
+# 1. Check hooks are executable
+ls -la ~/.claude/hooks/
 
-# Smaller chunks (more calls, but safer)
-python rlm_tools/chunk.py input.txt --size 100000
+# 2. Reload hooks in Claude Code
+# Type: /hooks
+
+# 3. Or restart Claude Code
 ```
 
-### Missing context between chunks
+### Skill matching not working?
 
-**Solution**: Increase overlap:
 ```bash
-python rlm_tools/chunk.py input.txt --overlap 2000
+# Test the hook manually
+echo '{"prompt": "help me with bun sqlite"}' | python3 ~/.claude/hooks/skill-matcher.py
 ```
 
-### PDF extraction fails
+### Session recovery not loading files?
 
-**Solution**: Install pdfplumber or try alternative:
-```bash
-pip install pdfplumber
+1. Check persistence files exist in the project directory
+2. Check `session-recovery.py` has correct PROJECT_DIR path
+3. Test manually: `echo '{}' | python3 ~/.claude/hooks/session-recovery.py`
 
-# Or use pdftotext (if available)
-pdftotext document.pdf rlm_context/input.txt
-```
+### Large input detection not triggering?
 
-### Results are inconsistent across chunks
-
-**Solution**: Make your query more specific when processing:
-```
-"Extract ONLY mentions of [specific term]. Include page/line references."
-```
-
-### Out of memory
-
-**Solution**: Process fewer chunks in parallel (2-3 instead of 5).
+The threshold is 50K characters. For smaller inputs, RLM isn't needed.
 
 ---
 
-## Best Practices
+## Summary: What's Automatic
 
-1. **Always probe first** - Know your input before chunking
-2. **Use appropriate overlap** - 500 chars for general text, 1000+ for technical/legal
-3. **Be specific in queries** - "Find X" is better than "Analyze everything"
-4. **Process in parallel** - Claude Code can handle 3-5 subagents simultaneously
-5. **Check manifest.json** - Track what's been processed if interrupted
-6. **Clean up after** - Remove `rlm_context/chunks/` and `results/` when done
+| Feature | Automatic? | Hook |
+|---------|------------|------|
+| Skill matching | ✅ | skill-matcher.py |
+| Skill usage tracking | ✅ | skill-tracker.py |
+| Learning detection | ✅ | detect-learning.py |
+| Session recovery | ✅ | session-recovery.py |
+| Large input detection | ✅ | large-input-detector.py |
+| Skills library | Manual | /skill-name |
+| RLM processing | Guided | (suggested by hook) |
 
----
-
-## How It Works (Technical)
-
-The RLM system implements the Recursive Language Model paradigm from MIT CSAIL:
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    ROOT LM (Claude Code)                │
-│                                                         │
-│  1. Receive large input                                 │
-│  2. Probe → understand structure                        │
-│  3. Chunk → split into pieces                          │
-│  4. Delegate → spawn Task subagents                    │
-│                                                         │
-│     ┌──────────┐  ┌──────────┐  ┌──────────┐          │
-│     │ Sub-LM 1 │  │ Sub-LM 2 │  │ Sub-LM 3 │  ...     │
-│     │ chunk_1  │  │ chunk_2  │  │ chunk_3  │          │
-│     └────┬─────┘  └────┬─────┘  └────┬─────┘          │
-│          │             │             │                 │
-│          ▼             ▼             ▼                 │
-│     ┌──────────────────────────────────────┐          │
-│     │         Results on Filesystem         │          │
-│     └──────────────────────────────────────┘          │
-│                        │                               │
-│  5. Aggregate ← combine results                       │
-│  6. Synthesize → final answer                         │
-└─────────────────────────────────────────────────────────┘
-```
-
-This achieves **O(log n)** cost scaling while maintaining accuracy on documents that would otherwise exceed context limits.
+**Everything is automatic except manual skill invocation and actual RLM processing (which is guided).**
 
 ---
 
 ## Need Help?
 
 - Check `CLAUDE.md` for Claude Code-specific guidance
-- Read `docs/rlm_paper_notes.md` for theoretical background
-- Original paper: [arXiv:2512.24601](https://arxiv.org/abs/2512.24601)
+- Read `docs/rlm_paper_notes.md` for RLM theoretical background
+- Original RLM paper: [arXiv:2512.24601](https://arxiv.org/abs/2512.24601)

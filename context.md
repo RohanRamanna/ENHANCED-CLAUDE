@@ -1,48 +1,63 @@
 # Context
 
-> **Purpose**: This file preserves the current goal/context across session compaction. Claude should read this file when resuming work.
+> **Purpose**: This file preserves the current goal/context across session compaction. Automatically injected by `session-recovery.py` hook.
 
 ## Current Goal
 
-Implemented **Enhanced Claude** - a self-improving AI with four integrated systems:
+**Enhanced Claude is COMPLETE** - a self-improving AI with four systems, all powered by automatic hooks:
 
-1. **Session Persistence** - 3 markdown files (this one, todos.md, insights.md) to maintain continuity across context compaction
-2. **RLM for Large Documents** - Python tools to process documents exceeding context window
-3. **Auto-Skills** - Self-improving skill system that automatically matches, tracks, learns, and improves
-4. **Skills Library** - 15 reusable skills loaded on-demand
+| System | Hook | Status |
+|--------|------|--------|
+| Session Persistence | `session-recovery.py` | ✅ Automatic |
+| RLM Detection | `large-input-detector.py` | ✅ Automatic |
+| Auto-Skills | `skill-matcher.py`, `skill-tracker.py`, `detect-learning.py` | ✅ Automatic |
+| Skills Library | Manual `/skill-name` | ✅ Working |
 
 ## Key Decisions Made
 
-1. **No external API key required** - RLM uses Claude Code's native Task subagents
-2. **Four complementary systems** - Each solves a different problem
-3. **Auto-behavior protocol** - Skills are matched automatically on every request
-4. **Self-improvement loop** - skill-creator, skill-updater, skill-improver work together
-5. **Skill tracking** - useCount, successCount, failureCount for health monitoring
+1. **Hooks for automation** - All 4 systems are now automatic via Claude Code hooks
+2. **5 Python hooks** in `~/.claude/hooks/`:
+   - `skill-matcher.py` - Matches skills on every message
+   - `large-input-detector.py` - Detects large inputs, suggests RLM
+   - `skill-tracker.py` - Tracks SKILL.md reads
+   - `detect-learning.py` - Detects trial-and-error moments
+   - `session-recovery.py` - Injects persistence files after compaction
+3. **Conservative learning detection** - Only triggers on 3+ failures followed by success
+4. **Global skills** - Skills in `~/.claude/skills/` (not project-specific)
 
 ## Important Files
 
 | File | Purpose |
 |------|---------|
-| `CLAUDE.md` | Main guidance with Enhanced Claude Protocol |
-| `skills/skill-index/index.json` | Central skill index for matching |
-| `skills/*/metadata.json` | Tracking data for each skill |
-| `rlm_tools/*` | RLM processing tools |
-| `docs/VERIFIED_TEST_RESULTS.md` | RLM verification proof |
+| `~/.claude/settings.json` | Hook configuration |
+| `~/.claude/hooks/*.py` | The 5 automation hooks |
+| `~/.claude/skills/skill-index/index.json` | Skill index for matching |
+| `CLAUDE.md` | Main guidance with hooks documentation |
+| `docs/HOW_TO_USE.md` | Complete usage guide |
 
-## Enhanced Claude Protocol
+## How Automation Works
 
-On every user request:
-1. **Skill Matching** - Score skills against request, load if score ≥10
-2. **Skill Tracking** - Update useCount, successCount, failureCount
-3. **Auto-Learning** - Offer to save trial-and-error solutions as new skills
-4. **Auto-Improvement** - Update skills that fail or need workarounds
+```
+Every message:
+  → skill-matcher.py scores skills, suggests matches
+  → large-input-detector.py checks for large inputs
+
+After reading SKILL.md:
+  → skill-tracker.py updates useCount, lastUsed
+
+Before Claude finishes:
+  → detect-learning.py checks for trial-and-error
+
+After /compact:
+  → session-recovery.py injects this file + todos.md + insights.md
+```
 
 ## Notes for Future Self
 
-- The auto-skills system is documented in CLAUDE.md under "CRITICAL: Enhanced Claude Protocol"
-- Skills are in `skills/` with index at `skills/skill-index/index.json`
-- Each skill has SKILL.md (content) and metadata.json (tracking)
-- RLM tested on 1.2M token corpus (8 books) and 920K token codebase (FastAPI)
+- All automation is in `~/.claude/hooks/` (user-level, works across projects)
+- Hook configuration is in `~/.claude/settings.json`
+- Hooks can be reloaded with `/hooks` command
+- Test hooks manually: `echo '{"prompt": "test"}' | python3 ~/.claude/hooks/skill-matcher.py`
 
 ---
 
