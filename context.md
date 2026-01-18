@@ -8,7 +8,7 @@
 
 | System | Hook | Status |
 |--------|------|--------|
-| Session Persistence | `session-recovery.py` | ✅ Automatic |
+| Session Persistence | `session-recovery.py`, `live-session-indexer.py` | ✅ RLM-based |
 | RLM Detection | `large-input-detector.py` | ✅ Automatic |
 | Auto-Skills | `skill-matcher.py`, `skill-tracker.py`, `detect-learning.py` | ✅ Automatic |
 | Searchable History | `history-indexer.py`, `history-search.py` | ✅ Automatic |
@@ -17,14 +17,15 @@
 ## Key Decisions Made
 
 1. **Hooks for automation** - All 5 systems are now automatic via Claude Code hooks
-2. **7 Python hooks** in `~/.claude/hooks/`:
+2. **8 Python hooks** in `~/.claude/hooks/`:
    - `skill-matcher.py` - Matches skills on every message
    - `large-input-detector.py` - Detects large inputs, suggests RLM
    - `history-search.py` - Suggests relevant past sessions
    - `skill-tracker.py` - Tracks SKILL.md reads
    - `detect-learning.py` - Detects trial-and-error moments
    - `history-indexer.py` - Indexes conversation history
-   - `session-recovery.py` - Injects persistence files after compaction
+   - `live-session-indexer.py` - Chunks live session into segments (NEW)
+   - `session-recovery.py` - RLM-based intelligent recovery with segments (ENHANCED)
 3. **Conservative learning detection** - Only triggers on 3+ failures followed by success
 4. **Global skills** - Skills in `~/.claude/skills/` (not project-specific)
 5. **History indexing** - Zero data duplication, index points to existing JSONL files
@@ -34,8 +35,9 @@
 | File | Purpose |
 |------|---------|
 | `~/.claude/settings.json` | Hook configuration |
-| `~/.claude/hooks/*.py` | The 7 automation hooks |
+| `~/.claude/hooks/*.py` | The 8 automation hooks |
 | `~/.claude/history/index.json` | Searchable history index |
+| `~/.claude/sessions/<id>/segments.json` | Live session segment index |
 | `~/.claude/skills/skill-index/index.json` | Skill index for matching |
 | `CLAUDE.md` | Main guidance with hooks documentation |
 | `docs/HOW_TO_USE.md` | Complete usage guide |

@@ -69,6 +69,28 @@ The key insight: **index WHERE data is, not WHAT it contains**.
 - On search, only load the relevant segment, not the whole history
 - No summarization = no data loss
 
+### RLM-based Live Session Persistence
+
+Apply RLM principles to the CURRENT session for zero data loss after compaction:
+
+1. **Segment Detection** - Natural boundaries:
+   - Task completion (TodoWrite with completed items)
+   - Topic change (new user question)
+   - Time gaps (> 5 minutes)
+   - Max segment size (100 lines)
+
+2. **Segment Scoring** - Select most relevant after compaction:
+   - Recency: 50 points max, -5 per hour
+   - Task match: +10 per topic matching pending todos
+   - Active work: +15 for segments with Edit/Write
+   - Decisions: +10 if segment contains key decisions
+
+3. **Content Extraction** - Load actual JSONL content, not just metadata:
+   - Extract user messages, assistant responses
+   - Highlight file modifications
+   - Show completed/in-progress tasks
+   - Stay within ~2000 token budget
+
 ## Patterns Identified
 
 ### Conservative Learning Detection
@@ -134,7 +156,7 @@ Skills are in `~/.claude/skills/` (global), not project-specific. This means:
 
 ```
 ~/.claude/
-├── settings.json           # Hook configuration (7 hooks)
+├── settings.json           # Hook configuration (8 hooks)
 ├── hooks/
 │   ├── skill-matcher.py    # UserPromptSubmit: match skills
 │   ├── large-input-detector.py  # UserPromptSubmit: detect large inputs
@@ -142,7 +164,11 @@ Skills are in `~/.claude/skills/` (global), not project-specific. This means:
 │   ├── skill-tracker.py    # PostToolUse: track usage
 │   ├── detect-learning.py  # Stop: detect learning moments
 │   ├── history-indexer.py  # Stop: index conversation history
-│   └── session-recovery.py # SessionStart: load persistence files
+│   ├── live-session-indexer.py  # Stop: chunk live session into segments
+│   └── session-recovery.py # SessionStart: RLM-based intelligent recovery
+├── sessions/
+│   └── <session-id>/
+│       └── segments.json   # Live session segment index
 ├── history/
 │   └── index.json          # Searchable history index
 └── skills/

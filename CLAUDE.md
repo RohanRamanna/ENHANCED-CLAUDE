@@ -10,7 +10,7 @@ This repository transforms Claude into an **Enhanced Claude** with five integrat
 
 | System | Problem Solved | Hook | Automatic? |
 |--------|---------------|------|------------|
-| **Session Persistence** | Memory loss during context compaction | `session-recovery.py` | ✅ YES |
+| **Session Persistence** | Memory loss during context compaction | `session-recovery.py`, `live-session-indexer.py` | ✅ YES (RLM-based) |
 | **RLM (Large Documents)** | Documents too large for context window | `large-input-detector.py` | ✅ YES |
 | **Auto-Skills** | Repetitive problem-solving | `skill-matcher.py`, `skill-tracker.py`, `detect-learning.py` | ✅ YES |
 | **Searchable History** | Finding past solutions without filling context | `history-indexer.py`, `history-search.py` | ✅ YES |
@@ -20,7 +20,7 @@ This repository transforms Claude into an **Enhanced Claude** with five integrat
 
 ## The Hooks System
 
-All automation is powered by **7 Python hooks** in `~/.claude/hooks/`:
+All automation is powered by **8 Python hooks** in `~/.claude/hooks/`:
 
 ```
 ~/.claude/hooks/
@@ -30,7 +30,8 @@ All automation is powered by **7 Python hooks** in `~/.claude/hooks/`:
 ├── skill-tracker.py        # PostToolUse: tracks skill usage
 ├── detect-learning.py      # Stop: detects trial-and-error moments
 ├── history-indexer.py      # Stop: indexes conversation history
-└── session-recovery.py     # SessionStart: loads persistence files
+├── live-session-indexer.py # Stop: chunks live session for RLM recovery
+└── session-recovery.py     # SessionStart: RLM-based intelligent recovery
 ```
 
 ### Hook Configuration (`~/.claude/settings.json`)
@@ -59,7 +60,8 @@ All automation is powered by **7 Python hooks** in `~/.claude/hooks/`:
       {
         "hooks": [
           {"type": "command", "command": "python3 ~/.claude/hooks/detect-learning.py"},
-          {"type": "command", "command": "python3 ~/.claude/hooks/history-indexer.py"}
+          {"type": "command", "command": "python3 ~/.claude/hooks/history-indexer.py"},
+          {"type": "command", "command": "python3 ~/.claude/hooks/live-session-indexer.py"}
         ]
       }
     ],
@@ -83,34 +85,52 @@ All automation is powered by **7 Python hooks** in `~/.claude/hooks/`:
 
 ---
 
-## System 1: Session Persistence (Automatic)
+## System 1: Session Persistence (RLM-based, Automatic)
 
-**Problem**: When context compacts during long sessions, Claude loses memory.
+**Problem**: When context compacts during long sessions, Claude loses memory. Manual summaries miss details.
 
-**Solution**: Hook automatically injects persistence files after compaction.
+**Solution**: Two hooks work together for intelligent, zero-loss recovery:
+1. **live-session-indexer.py** (Stop) - Chunks the live session into semantic segments
+2. **session-recovery.py** (SessionStart) - Intelligently loads most relevant segments after compaction
 
 ### How It Works
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│              SESSION PERSISTENCE (FULLY AUTOMATIC)               │
+│         RLM-BASED SESSION PERSISTENCE (FULLY AUTOMATIC)          │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  CONTEXT COMPACTS (manual /compact or auto)                     │
+│  DURING CONVERSATION (Stop hook after each turn):               │
+│  live-session-indexer.py chunks conversation into segments:     │
+│    • Segment boundaries: task completion, topic change, time    │
+│    • Each segment: topics, files, tools, decisions, summary     │
 │       ↓                                                         │
-│  SessionStart hook fires                                        │
-│       ↓                                                         │
-│  session-recovery.py INJECTS into Claude's context:             │
-│    • context.md  → Current goal & decisions                     │
-│    • todos.md    → Task progress                                │
-│    • insights.md → Accumulated learnings                        │
-│       ↓                                                         │
-│  Claude continues with full context - NO MANUAL ACTION          │
+│  ~/.claude/sessions/<session-id>/segments.json                  │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  AFTER COMPACTION (SessionStart hook):                          │
+│  session-recovery.py intelligently loads context:               │
+│    1. Load persistence files (context.md, todos.md, insights.md)│
+│    2. Load segment index for current session                    │
+│    3. Score segments: recency + task relevance + active work    │
+│    4. Extract ACTUAL content from JSONL for top segments        │
+│    5. Inject relevant context (~2000 tokens of conversation)    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### The Three Persistence Files
+### Segment Scoring Algorithm
+
+| Factor | Points | Description |
+|--------|--------|-------------|
+| Recency | 0-50 | Newer segments score higher (5 pts lost per hour) |
+| Task match | 10/topic | Segments related to pending todos |
+| Active work | +15 | Segments with Edit/Write tool usage |
+| Decisions | +10 | Segments containing key decisions |
+| Task completed | +10 | Segments ending with completed tasks |
+
+### The Three Persistence Files (Still Updated)
 
 | File | Purpose | When to Update |
 |------|---------|----------------|
@@ -121,9 +141,9 @@ All automation is powered by **7 Python hooks** in `~/.claude/hooks/`:
 ### What Claude Sees After Compaction
 
 ```
-============================================================
-SESSION RECOVERED - Persistence files loaded automatically
-============================================================
+======================================================================
+SESSION RECOVERED - RLM-based intelligent context loading
+======================================================================
 
 ### Current Goal & Decisions (context.md)
 [Contents injected]
@@ -134,10 +154,34 @@ SESSION RECOVERED - Persistence files loaded automatically
 ### Accumulated Learnings (insights.md)
 [Contents injected]
 
-============================================================
-Continue where you left off. Update these files as you work.
-============================================================
+======================================================================
+RELEVANT CONVERSATION CONTEXT (RLM-recovered)
+======================================================================
+
+--- Segment seg-002 (score: 91) ---
+Topics: context, session, hooks, persistence
+Summary: Topics: context, session | Files: 7 | Tools: TodoWrite, Write, Edit
+
+Conversation excerpt:
+USER: work on the priority pending item
+ASSISTANT: I'll work on RLM-based live session persistence...
+[Modified: live-session-indexer.py]
+[Completed: Create live-session-indexer.py hook]
+
+[Loaded 3 relevant segments from session history]
+
+======================================================================
+Continue where you left off. Context has been intelligently restored.
+======================================================================
 ```
+
+### Storage Location
+
+```
+~/.claude/sessions/<session-id>/segments.json
+```
+
+Contains segment index with pointers to JSONL content (zero data duplication).
 
 ---
 
@@ -362,7 +406,8 @@ PERSISTANT MEMORY/
 | You send any message | Skills are matched and suggested |
 | You send any message | Relevant history is suggested |
 | You paste large text | RLM workflow is suggested |
-| Context compacts | Persistence files are auto-loaded |
+| Context compacts | Persistence files + relevant segments are auto-loaded |
+| Claude finishes responding | Live session is chunked into segments |
 | You solve via trial-and-error | Skill creation is offered |
 | You read a SKILL.md | Usage is tracked |
 | Claude finishes responding | History index is updated |
