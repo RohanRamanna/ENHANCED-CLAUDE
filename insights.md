@@ -88,9 +88,64 @@ Successfully extracted complete security architecture:
 2. **Code queries work well**: "Find all X-related code" produces structured results
 3. **Architectural discovery**: RLM can map entire subsystems (not just find individual items)
 
+## Enhanced Claude: Auto-Skills System
+
+### The Four Systems
+
+| System | Problem | Behavior |
+|--------|---------|----------|
+| Session Persistence | Memory loss | Read files on resume |
+| RLM | Oversized documents | Chunk and delegate |
+| Auto-Skills | Repetitive problem-solving | Automatic matching, learning, improvement |
+| Skills Library | Reusable patterns | On-demand loading |
+
+### Auto-Skills Feedback Loop
+
+```
+User Request
+    ↓
+skill-matcher → Score skills against request
+    ↓
+skill-loader → Load matching skill (score ≥ 10)
+    ↓
+skill-tracker → Log usage (useCount++)
+    ↓
+[Apply skill]
+    ↓
+SUCCESS → skill-tracker (successCount++)
+        → skill-improver (suggest enhancements)
+    ↓
+FAILURE → skill-tracker (failureCount++)
+        → skill-updater (fix the skill)
+    ↓
+NO SKILL → Solve via trial-and-error
+         → skill-creator (offer to save as new skill)
+```
+
+### Skill Matching Algorithm
+
+| Match Type | Points |
+|------------|--------|
+| Exact tag match | +3 |
+| Category match | +5 |
+| Summary keyword | +2 |
+| Description keyword | +1 |
+| Recent use (< 7 days) | +1 |
+| High success rate (> 80%) | +2 |
+
+**Thresholds**: ≥10 = load immediately, 5-9 = mention as option, <5 = no match
+
+### Key Design Decisions
+
+1. **Skills are files** - SKILL.md + metadata.json, not code
+2. **Index is central** - skill-index/index.json for fast matching
+3. **Tracking is automatic** - useCount, successCount, failureCount
+4. **Learning is opportunistic** - Only offer to save after trial-and-error
+
 ## Open Questions
 
 - ~~How does RLM perform on code?~~ → **Answered: Works excellently**
+- ~~How to make skills self-improving?~~ → **Answered: Auto-skills feedback loop**
 - Can we detect when RLM is needed automatically (probe → recommend)?
 - What's the optimal chunk size for different document types?
 - How to handle cross-chunk references more elegantly?

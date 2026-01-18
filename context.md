@@ -4,34 +4,45 @@
 
 ## Current Goal
 
-Implemented a **dual persistent memory system** for Claude Code:
+Implemented **Enhanced Claude** - a self-improving AI with four integrated systems:
+
 1. **Session Persistence** - 3 markdown files (this one, todos.md, insights.md) to maintain continuity across context compaction
 2. **RLM for Large Documents** - Python tools to process documents exceeding context window
+3. **Auto-Skills** - Self-improving skill system that automatically matches, tracks, learns, and improves
+4. **Skills Library** - 15 reusable skills loaded on-demand
 
 ## Key Decisions Made
 
-1. **No external API key required** - RLM uses Claude Code's native Task subagents instead of Anthropic API calls
-2. **Two complementary systems** - Session persistence solves memory loss; RLM solves oversized inputs (different problems)
-3. **Chunk size**: 200K characters per chunk with 500 char overlap
-4. **Parallel processing**: 3-6 Task subagents at a time for efficiency
-5. **Verification approach**: Use grep on original corpus to verify RLM findings at exact line numbers
+1. **No external API key required** - RLM uses Claude Code's native Task subagents
+2. **Four complementary systems** - Each solves a different problem
+3. **Auto-behavior protocol** - Skills are matched automatically on every request
+4. **Self-improvement loop** - skill-creator, skill-updater, skill-improver work together
+5. **Skill tracking** - useCount, successCount, failureCount for health monitoring
 
 ## Important Files
 
 | File | Purpose |
 |------|---------|
-| `CLAUDE.md` | Main guidance - read first when resuming |
-| `rlm_tools/probe.py` | Analyze document structure |
-| `rlm_tools/chunk.py` | Split large documents |
-| `rlm_tools/aggregate.py` | Combine subagent results |
-| `docs/VERIFIED_TEST_RESULTS.md` | Proof that RLM works on 1.2M token corpus |
+| `CLAUDE.md` | Main guidance with Enhanced Claude Protocol |
+| `skills/skill-index/index.json` | Central skill index for matching |
+| `skills/*/metadata.json` | Tracking data for each skill |
+| `rlm_tools/*` | RLM processing tools |
+| `docs/VERIFIED_TEST_RESULTS.md` | RLM verification proof |
+
+## Enhanced Claude Protocol
+
+On every user request:
+1. **Skill Matching** - Score skills against request, load if score ≥10
+2. **Skill Tracking** - Update useCount, successCount, failureCount
+3. **Auto-Learning** - Offer to save trial-and-error solutions as new skills
+4. **Auto-Improvement** - Update skills that fail or need workarounds
 
 ## Notes for Future Self
 
-- The RLM system was tested on an 8-book literary corpus (4.86M chars, ~1.2M tokens)
-- This corpus is **6x larger** than the context window - proving RLM handles impossible inputs
-- Deaths were verified by grep at exact line numbers (Sydney Carton line 82107, etc.)
-- Session persistence files are templates - update them as you work on new tasks
+- The auto-skills system is documented in CLAUDE.md under "CRITICAL: Enhanced Claude Protocol"
+- Skills are in `skills/` with index at `skills/skill-index/index.json`
+- Each skill has SKILL.md (content) and metadata.json (tracking)
+- RLM tested on 1.2M token corpus (8 books) and 920K token codebase (FastAPI)
 
 ---
 
