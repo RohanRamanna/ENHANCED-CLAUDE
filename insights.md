@@ -88,10 +88,76 @@ This prevents false positives and annoying prompts.
 
 ### Project Directory Detection
 
-Hooks use `os.getcwd()` to detect the project directory. If you run Claude Code from a different directory, ensure you're in the project root.
+Hooks use `os.getcwd()` to detect the project directory. If you run Claude Code from a different directory, ensure you're in the project root. Alternatively, set `CLAUDE_PROJECT_DIR` environment variable.
 
-Alternatively, set `CLAUDE_PROJECT_DIR` environment variable.
+### Skills Location
+
+Skills are in `~/.claude/skills/` (global), not project-specific. This means:
+- Skills work across all projects
+- skill-matcher.py uses this path
+- skill-tracker.py updates metadata here
+
+### Chunk Overlap Matters
+
+- Default 500 chars might miss context at boundaries
+- For technical/legal docs, consider 1000-2000 char overlap
+
+## The Complete Automation Stack
+
+```
+~/.claude/
+├── settings.json           # Hook configuration (8 hooks)
+├── hooks/
+│   ├── skill-matcher.py    # UserPromptSubmit: match skills
+│   ├── large-input-detector.py  # UserPromptSubmit: detect large inputs
+│   ├── history-search.py   # UserPromptSubmit: suggest past sessions
+│   ├── skill-tracker.py    # PostToolUse: track usage
+│   ├── detect-learning.py  # Stop: detect learning moments
+│   ├── history-indexer.py  # Stop: index conversation history
+│   ├── live-session-indexer.py  # Stop: chunk live session into segments
+│   └── session-recovery.py # SessionStart: RLM-based intelligent recovery
+├── sessions/
+│   └── <session-id>/
+│       └── segments.json   # Live session segment index
+├── history/
+│   └── index.json          # Searchable history index
+└── skills/
+    ├── skill-index/
+    │   └── index.json      # Central skill index
+    └── */
+        ├── SKILL.md        # Skill content
+        └── metadata.json   # Usage tracking
+```
+
+## Open Questions (Resolved)
+
+- ~~How does RLM perform on code?~~ → **Works excellently** (FastAPI test)
+- ~~How to make skills self-improving?~~ → **Auto-skills hooks** (matcher, tracker, learning detection)
+- ~~Can we detect when RLM is needed automatically?~~ → **Yes, via large-input-detector.py hook**
+- ~~How to make session persistence automatic?~~ → **Yes, via session-recovery.py hook**
+- ~~How to search past conversations without loading everything?~~ → **Searchable history with index pointers**
+
+### Semantic Code Chunking Works Well
+
+The `--strategy code` option intelligently splits code at function/class boundaries:
+- Auto-detects language from code patterns (Python colons, TS types, etc.)
+- Keeps related code together (class with methods in same chunk)
+- Entities metadata helps understand what each chunk contains
+
+**Language detection patterns**:
+| Language | Key Indicators |
+|----------|---------------|
+| Python | `def `, `class `, trailing `:` |
+| TypeScript | `interface`, `type =`, `: string/number` |
+| JavaScript | `function`, `const =`, `=>` |
+| Go | `func`, `package`, `type struct` |
+| Rust | `fn`, `impl`, `struct`, `enum` |
+
+## Remaining Questions
+
+- What's the optimal chunk size for different document types?
+- How to handle cross-chunk references more elegantly?
 
 ---
 
-**Last Updated**: 2026-01-18
+**Last Updated**: 2026-01-19

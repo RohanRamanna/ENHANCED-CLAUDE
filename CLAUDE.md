@@ -4,6 +4,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## Repository Structure (Dual Repo Setup)
+
+This project uses two GitHub repositories:
+
+| Remote | Repository | Visibility | Purpose |
+|--------|------------|------------|---------|
+| `origin` | [persistent-memory-rlm](https://github.com/RohanRamanna/persistent-memory-rlm) | **Private** | Working copy with full history, experiments, personal data |
+| `public` | [ENHANCED-CLAUDE](https://github.com/RohanRamanna/ENHANCED-CLAUDE) | **Public** | Cleaned version for sharing |
+
+### Workflow
+
+```bash
+# Push to private (daily work)
+git push origin main
+
+# Push to public (when ready to share updates)
+git checkout public-release
+git merge main
+# Clean up any personal paths if needed
+git push public public-release:main
+```
+
+### Branch Mapping
+
+- `main` → private repo (`origin`)
+- `public-release` → public repo's `main` (`public`)
+
+---
+
 ## Enhanced Claude: Self-Improving AI
 
 This repository transforms Claude into an **Enhanced Claude** with five integrated systems, **all powered by automatic hooks**:

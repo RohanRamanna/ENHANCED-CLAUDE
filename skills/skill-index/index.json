@@ -1,195 +1,283 @@
 {
   "skills": [
     {
-      "name": "skill-index",
-      "category": "meta",
-      "tags": ["discovery", "search", "catalog", "index"],
-      "summary": "Index and discover available skills by category/tags",
-      "description": "Use when looking for relevant skills, checking what skills exist, categorizing new skills, or finding skills by keyword/category.",
-      "dependencies": [],
-      "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
-    },
-    {
-      "name": "skill-matcher",
-      "category": "meta",
-      "tags": ["matching", "scoring", "discovery", "automation"],
-      "summary": "Smart skill discovery with scoring and proactive suggestions",
-      "description": "Find the best matching skill for a request using scored matching. Use when searching for relevant skills, suggesting skills proactively, or when no obvious skill match exists.",
-      "dependencies": ["skill-index"],
-      "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
-    },
-    {
-      "name": "skill-loader",
-      "category": "meta",
-      "tags": ["loading", "context", "efficiency", "lazy-loading"],
-      "summary": "Lazy-load skills to minimize context usage",
-      "description": "Implement lazy loading of skill content to save context tokens. Use when loading skills, managing context efficiency, or deciding what skill content to read.",
-      "dependencies": ["skill-index"],
-      "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
-    },
-    {
-      "name": "skill-tracker",
-      "category": "meta",
-      "tags": ["tracking", "metrics", "usage", "analytics"],
-      "summary": "Automatically track skill usage, success, and failure",
-      "description": "Track skill usage metrics automatically. Use after loading any skill to update its useCount, after confirming a skill worked to update successCount, or when a skill fails to update failureCount.",
-      "dependencies": [],
-      "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
-    },
-    {
       "name": "skill-creator",
       "category": "meta",
-      "tags": ["learning", "automation", "creation", "trial-and-error"],
+      "tags": [
+        "learning",
+        "skills",
+        "automation",
+        "meta-skill"
+      ],
       "summary": "Auto-detect learning moments and create reusable skills",
-      "description": "Automatically recognize trial-and-error learning moments and offer to save them as reusable skills. Use when Claude has solved a problem after multiple attempts, discovered a non-obvious solution, or encountered and resolved unexpected errors.",
-      "dependencies": ["skill-index"],
+      "dependencies": [],
       "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
+      "useCount": 0
     },
     {
       "name": "skill-updater",
       "category": "meta",
-      "tags": ["updating", "maintenance", "fixes", "improvement"],
-      "summary": "Update skills when they fail or better solutions are found",
-      "description": "Update existing skills when their solutions fail, require workarounds, or when better approaches are discovered. Use when a skill was applied but didn't work, when you had to deviate from documented steps, or when an existing skill needs corrections or improvements.",
-      "dependencies": ["skill-tracker"],
-      "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
-    },
-    {
-      "name": "skill-improver",
-      "category": "meta",
-      "tags": ["improvement", "feedback", "quality", "enhancement"],
-      "summary": "Proactively suggest skill improvements during usage",
-      "description": "Monitor skill usage and proactively suggest improvements. Use when a skill worked but could be better, when you notice gaps in skills, or when skills overlap significantly.",
-      "dependencies": ["skill-tracker"],
-      "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
-    },
-    {
-      "name": "skill-validator",
-      "category": "meta",
-      "tags": ["validation", "testing", "health", "dependencies"],
-      "summary": "Validate skills still work by checking dependencies and examples",
-      "description": "Validate skill health by checking dependencies, syntax, and examples. Use when reviewing skills, before major updates, or when a skill might be outdated due to tool version changes.",
+      "tags": [
+        "learning",
+        "skills",
+        "maintenance",
+        "meta-skill"
+      ],
+      "summary": "Update skills when they fail and better solutions found",
       "dependencies": [],
       "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
-    },
-    {
-      "name": "skill-health",
-      "category": "meta",
-      "tags": ["metrics", "maintenance", "monitoring", "reporting"],
-      "summary": "Track skill usage and identify skills needing updates",
-      "description": "Track skill usage and effectiveness, identify skills that need updates or maintenance. Use when reviewing skill quality, checking for stale skills, or analyzing skill effectiveness.",
-      "dependencies": ["skill-index", "skill-tracker"],
-      "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
+      "useCount": 0
     },
     {
       "name": "web-research",
-      "category": "fallback",
-      "tags": ["research", "search", "troubleshooting", "documentation"],
+      "category": "meta",
+      "tags": [
+        "research",
+        "web",
+        "fallback",
+        "troubleshooting"
+      ],
       "summary": "Fallback research when stuck after initial attempt fails",
-      "description": "Use AFTER attempting a solution that failed, when encountering an unfamiliar error, or when existing skills don't cover the situation. Do NOT use as a first resort - try existing knowledge and skills first.",
       "dependencies": [],
       "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
-    },
-    {
-      "name": "deno2-http-kv-server",
-      "category": "setup",
-      "tags": ["deno", "http", "kv", "database", "server", "typescript"],
-      "summary": "Deno 2 HTTP server with KV database",
-      "description": "Set up Deno 2 HTTP servers with built-in KV database. Use when creating web servers with Deno, using Deno.serve, working with Deno KV for persistence, or building APIs with Deno 2.",
-      "dependencies": [],
-      "lastUsed": "2026-01-15",
-      "useCount": 1,
-      "successCount": 1,
-      "failureCount": 0
-    },
-    {
-      "name": "hono-bun-sqlite-api",
-      "category": "setup",
-      "tags": ["hono", "bun", "sqlite", "api", "rest", "typescript", "crud"],
-      "summary": "REST API with Hono, Bun and SQLite",
-      "description": "Build REST APIs with Hono framework, Bun runtime, and SQLite database. Use when creating web APIs with Bun, using Hono framework, working with bun:sqlite, or building CRUD applications.",
-      "dependencies": [],
-      "lastUsed": "2026-01-18",
-      "useCount": 4,
-      "successCount": 2,
-      "failureCount": 0
+      "useCount": 0
     },
     {
       "name": "llm-api-tool-use",
       "category": "api",
-      "tags": ["anthropic", "llm", "tool-use", "python", "sdk", "agents", "claude"],
+      "tags": [
+        "anthropic",
+        "llm",
+        "tool-use",
+        "python",
+        "sdk",
+        "agents"
+      ],
       "summary": "Claude API tool use with Python SDK",
-      "description": "Implement tool use with the Claude API using Python SDK. Use when building agents, adding function calling, creating tools for Claude, or working with the Anthropic API tool_use feature.",
       "dependencies": [],
       "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
+      "useCount": 0
     },
     {
-      "name": "markdown-to-pdf",
-      "category": "utility",
-      "tags": ["markdown", "pdf", "export", "documentation", "macos"],
-      "summary": "Convert Markdown files to PDF on macOS",
-      "description": "Use when user wants to create a PDF from markdown, export documentation, or generate printable docs. Works without LaTeX or system dependencies.",
+      "name": "deno2-http-kv-server",
+      "category": "setup",
+      "tags": [
+        "deno",
+        "http",
+        "kv",
+        "database",
+        "server",
+        "typescript"
+      ],
+      "summary": "Deno 2 HTTP server with KV database",
       "dependencies": [],
       "lastUsed": "2026-01-15",
-      "useCount": 1,
-      "successCount": 1,
-      "failureCount": 0
+      "useCount": 1
+    },
+    {
+      "name": "hono-bun-sqlite-api",
+      "category": "setup",
+      "tags": [
+        "hono",
+        "bun",
+        "sqlite",
+        "api",
+        "rest",
+        "typescript"
+      ],
+      "summary": "REST API with Hono, Bun and SQLite",
+      "dependencies": [],
+      "lastUsed": "2026-01-19",
+      "useCount": 3
+    },
+    {
+      "name": "skill-index",
+      "category": "meta",
+      "tags": [
+        "discovery",
+        "search",
+        "index",
+        "meta-skill"
+      ],
+      "summary": "Index and discover available skills by category/tags",
+      "dependencies": [],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-loader",
+      "category": "meta",
+      "tags": [
+        "loading",
+        "context",
+        "efficiency",
+        "meta-skill"
+      ],
+      "summary": "Lazy-load skills to minimize context usage",
+      "dependencies": [
+        "skill-index"
+      ],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-health",
+      "category": "meta",
+      "tags": [
+        "tracking",
+        "quality",
+        "maintenance",
+        "analytics",
+        "meta-skill"
+      ],
+      "summary": "Track skill usage and identify skills needing updates",
+      "dependencies": [
+        "skill-index"
+      ],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-improver",
+      "category": "meta",
+      "tags": [
+        "improvement",
+        "proactive",
+        "suggestions",
+        "meta-skill"
+      ],
+      "summary": "Proactively suggest skill improvements during usage",
+      "dependencies": [
+        "skill-index",
+        "skill-updater"
+      ],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-tracker",
+      "category": "meta",
+      "tags": [
+        "tracking",
+        "metrics",
+        "analytics",
+        "automation",
+        "meta-skill"
+      ],
+      "summary": "Automatically track skill usage, success, and failure",
+      "dependencies": [
+        "skill-index"
+      ],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-validator",
+      "category": "meta",
+      "tags": [
+        "validation",
+        "testing",
+        "quality",
+        "dependencies",
+        "meta-skill"
+      ],
+      "summary": "Validate skills still work by checking dependencies and examples",
+      "dependencies": [
+        "skill-index",
+        "skill-health"
+      ],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-matcher",
+      "category": "meta",
+      "tags": [
+        "discovery",
+        "matching",
+        "search",
+        "suggestions",
+        "meta-skill"
+      ],
+      "summary": "Smart skill discovery with scoring and proactive suggestions",
+      "dependencies": [
+        "skill-index"
+      ],
+      "lastUsed": null,
+      "useCount": 0
     },
     {
       "name": "udcp",
-      "category": "workflow",
-      "tags": ["git", "commit", "documentation", "push", "sync"],
+      "category": "meta",
+      "tags": [
+        "git",
+        "commit",
+        "push",
+        "documentation",
+        "workflow",
+        "meta-skill"
+      ],
       "summary": "Update documentation, commit, and push in one command",
-      "description": "Sync skill changes from ~/.claude/skills to repo, update documentation, commit, and push. Use when invoking /udcp or after making skill changes that need to be committed.",
       "dependencies": [],
       "lastUsed": null,
-      "useCount": 0,
-      "successCount": 0,
-      "failureCount": 0
+      "useCount": 0
+    },
+    {
+      "name": "markdown-to-pdf",
+      "category": "setup",
+      "tags": [
+        "markdown",
+        "pdf",
+        "documentation",
+        "export",
+        "macos"
+      ],
+      "summary": "Convert Markdown files to PDF on macOS without LaTeX",
+      "dependencies": [],
+      "lastUsed": "2026-01-18",
+      "useCount": 2
+    },
+    {
+      "name": "history",
+      "category": "utility",
+      "tags": [
+        "history",
+        "search",
+        "memory",
+        "context",
+        "sessions",
+        "retrieval"
+      ],
+      "summary": "Search and retrieve past conversation history without filling context",
+      "dependencies": [],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "rlm",
+      "category": "processing",
+      "tags": [
+        "rlm",
+        "large-documents",
+        "chunking",
+        "subagents",
+        "aggregation",
+        "context-overflow"
+      ],
+      "summary": "Process documents/codebases larger than context window using chunking and subagents",
+      "dependencies": [],
+      "lastUsed": null,
+      "useCount": 0
     }
   ],
-  "categories": {
-    "meta": "Skills about skills - creation, tracking, improvement, discovery",
-    "setup": "Project setup and configuration patterns",
-    "api": "API integration patterns and SDKs",
-    "fallback": "Fallback behaviors when primary approaches fail",
-    "utility": "Utility tools for common tasks",
-    "workflow": "Multi-step workflows and automation",
-    "debugging": "Error diagnosis and fixes",
-    "database": "Database patterns and operations"
-  },
-  "lastUpdated": "2026-01-18"
+  "lastUpdated": "2026-01-19",
+  "categories": [
+    "meta",
+    "setup",
+    "api",
+    "debugging",
+    "database",
+    "utility",
+    "processing"
+  ]
 }
