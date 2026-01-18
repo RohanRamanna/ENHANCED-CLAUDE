@@ -4,7 +4,7 @@
 
 ## In Progress
 
-*No tasks currently in progress*
+- [ ] Merge `add-skills` branch into main
 
 ## Pending
 
@@ -12,6 +12,7 @@
 - [ ] Consider async subagent processing for faster results
 - [ ] Add progress tracking to chunk processing
 - [ ] Test on other languages (JavaScript, Go, Rust codebases)
+- [ ] Create RLM-specific skill for automated large document processing
 
 ## Completed (This Session)
 
@@ -46,6 +47,14 @@
 - [x] Run RLM with security-focused query
 - [x] Verify findings via grep (8 security classes confirmed)
 - [x] Document results in VERIFIED_TEST_RESULTS.md
+
+### Phase 6: Skills Library
+- [x] Import skills from ~/.claude/skills/ (16 skills)
+- [x] Create `add-skills` branch
+- [x] Update CLAUDE.md with System 3 (Skills Library)
+- [x] Update README.md with skills in repo structure
+- [x] Push to new branch
+- [ ] Merge into main
 
 ---
 
