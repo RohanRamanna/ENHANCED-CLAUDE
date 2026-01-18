@@ -4,15 +4,89 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## Three Systems for Enhanced Claude Code
+## Enhanced Claude: Self-Improving AI
 
-This repository provides **three complementary systems**:
+This repository transforms Claude into an **Enhanced Claude** with four integrated systems:
 
-| System | Problem Solved | When to Use |
-|--------|---------------|-------------|
-| **Session Persistence** | Memory loss during context compaction | Always - read these files when resuming |
-| **RLM (Large Documents)** | Documents too large for context window | When input exceeds ~100K tokens |
-| **Skills Library** | Reusable patterns and workflows | Invoke with `/skill-name` or Skill tool |
+| System | Problem Solved | Behavior |
+|--------|---------------|----------|
+| **Session Persistence** | Memory loss during context compaction | Read files when resuming |
+| **RLM (Large Documents)** | Documents too large for context window | Chunk and delegate |
+| **Auto-Skills** | Repetitive problem-solving | **Automatic** matching, learning, improvement |
+| **Skills Library** | Reusable patterns and workflows | On-demand loading |
+
+---
+
+## CRITICAL: Enhanced Claude Protocol
+
+**This protocol runs AUTOMATICALLY on every interaction.**
+
+### On Every User Request
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    ENHANCED CLAUDE LOOP                         │
+├─────────────────────────────────────────────────────────────────┤
+│ 1. SKILL MATCHING (automatic)                                   │
+│    → Read skills/skill-index/index.json                         │
+│    → Score each skill against user request                      │
+│    → If score ≥ 10: Load and apply the skill                    │
+│    → If score < 5: Proceed without skill (may trigger learning) │
+│                                                                 │
+│ 2. SKILL TRACKING (after using any skill)                       │
+│    → Update metadata.json: useCount++, lastUsed = today         │
+│    → On success: successCount++                                 │
+│    → On failure: failureCount++, trigger skill-updater          │
+│                                                                 │
+│ 3. AUTO-LEARNING (after solving without a skill)                │
+│    → If trial-and-error was needed (2+ attempts)                │
+│    → If non-obvious solution discovered                         │
+│    → Offer to save as new skill (skill-creator)                 │
+│                                                                 │
+│ 4. AUTO-IMPROVEMENT (after skill usage)                         │
+│    → If workaround was needed: suggest skill-updater            │
+│    → If enhancement discovered: suggest skill-improver          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Skill Matching Algorithm
+
+When a user makes a request, score each skill:
+
+| Match Type | Points |
+|------------|--------|
+| Exact tag match | +3 |
+| Category match | +5 |
+| Summary keyword match | +2 |
+| Description keyword match | +1 |
+| Recent use bonus (< 7 days) | +1 |
+| High success rate (> 80%) | +2 |
+
+**Thresholds:**
+- Score ≥ 10: Strong match → Load skill immediately
+- Score 5-9: Possible match → Mention as option
+- Score < 5: No match → Proceed without skill
+
+### Auto-Learning Triggers
+
+Offer to create a new skill when:
+1. ✅ Solved after 2+ attempts (trial-and-error)
+2. ✅ Found non-obvious solution (not in docs)
+3. ✅ Solution requires 3+ specific steps
+4. ✅ Discovered gotchas/edge cases
+
+Do NOT offer when:
+- ❌ Solution was straightforward (1 attempt)
+- ❌ Issue was user-specific (wrong path, typo)
+- ❌ Solution is trivial (< 2 steps)
+
+### Auto-Improvement Triggers
+
+After using a skill, check:
+1. Did I deviate from documented steps? → skill-updater
+2. Did I discover additional useful info? → skill-improver
+3. Did the skill fail? → skill-updater + failureCount++
+4. Is another skill very similar? → suggest merge
 
 ---
 

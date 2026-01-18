@@ -1,17 +1,66 @@
-# Persistent Memory RLM
+# Enhanced Claude
 
-**Recursive Language Models for Lossless Infinite Context in Claude Code**
+**Self-Improving AI with Infinite Context and Auto-Learning Skills**
 
-[![Status](https://img.shields.io/badge/status-complete-brightgreen)]()
+[![Status](https://img.shields.io/badge/status-enhanced-brightgreen)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 
 ## Overview
 
-This repository implements the **Recursive Language Model (RLM)** methodology from MIT CSAIL's paper [arXiv:2512.24601v1](https://arxiv.org/abs/2512.24601) to give Claude Code **lossless infinite context** without requiring external API keys.
+This repository transforms Claude Code into **Enhanced Claude** - a self-improving AI that:
 
-### Key Insight
+1. **Never forgets** - Session persistence across context compaction
+2. **No limits** - RLM for documents exceeding context window
+3. **Self-improves** - Auto-learning skills that evolve with use
 
-Claude Code's native tools map directly to the RLM architecture:
+### The Four Systems
+
+| System | Problem Solved | Behavior |
+|--------|---------------|----------|
+| **Session Persistence** | Memory loss during context compaction | Read files when resuming |
+| **RLM (Large Documents)** | Documents too large for context window | Chunk and delegate |
+| **Auto-Skills** | Repetitive problem-solving | **Automatic** matching, learning, improvement |
+| **Skills Library** | Reusable patterns and workflows | On-demand loading |
+
+## Auto-Skills: Self-Improving AI
+
+The core innovation is **auto-skills** - a feedback loop that makes Claude smarter over time:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    ENHANCED CLAUDE LOOP                         │
+├─────────────────────────────────────────────────────────────────┤
+│ 1. SKILL MATCHING (automatic)                                   │
+│    → Score each skill against user request                      │
+│    → Load and apply matching skills                             │
+│                                                                 │
+│ 2. SKILL TRACKING (after using any skill)                       │
+│    → Track usage, success, and failure metrics                  │
+│                                                                 │
+│ 3. AUTO-LEARNING (after solving without a skill)                │
+│    → Detect trial-and-error learning moments                    │
+│    → Offer to save as new skill                                 │
+│                                                                 │
+│ 4. AUTO-IMPROVEMENT (after skill usage)                         │
+│    → Update skills that fail or need workarounds                │
+│    → Suggest enhancements based on usage                        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Available Skills (15)
+
+| Category | Skills |
+|----------|--------|
+| **Meta** (9) | skill-index, skill-matcher, skill-loader, skill-tracker, skill-creator, skill-updater, skill-improver, skill-validator, skill-health |
+| **Setup** (2) | deno2-http-kv-server, hono-bun-sqlite-api |
+| **API** (1) | llm-api-tool-use |
+| **Utility** (1) | markdown-to-pdf |
+| **Workflow** (1) | udcp |
+| **Fallback** (1) | web-research |
+
+## RLM: Infinite Context
+
+Based on MIT CSAIL's paper [arXiv:2512.24601v1](https://arxiv.org/abs/2512.24601):
 
 | Paper Component | Claude Code Equivalent |
 |-----------------|----------------------|
@@ -21,13 +70,6 @@ Claude Code's native tools map directly to the RLM architecture:
 | `context` variable | Files on disk |
 
 **No Anthropic API key needed** - just use Claude Code's built-in capabilities.
-
-## Two Systems for Persistent Memory
-
-| System | Problem Solved | Files |
-|--------|---------------|-------|
-| **Session Persistence** | Memory loss during context compaction | `context.md`, `todos.md`, `insights.md` |
-| **RLM (Large Documents)** | Documents too large for context window | `rlm_tools/*` |
 
 ## Quick Start
 
