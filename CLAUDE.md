@@ -2,20 +2,52 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Status: ✅ COMPLETE & TESTED
+---
 
-**Implementation**: Fully functional RLM system using Claude Code's native tools.
+## Two Systems for Persistent Memory
 
-**Verified**: Successfully processed 33-page RLM paper (88,750 chars → 5 chunks → parallel subagent processing → synthesized answer).
+This repository provides **two complementary systems**:
 
-**Key Results from Test**:
-| Metric | Value |
-|--------|-------|
-| Input size | 88,750 characters |
-| Chunks created | 5 (~20K chars each) |
-| Subagents spawned | 5 (parallel) |
-| Processing | Successful |
-| Output | Comprehensive paper synthesis |
+| System | Problem Solved | When to Use |
+|--------|---------------|-------------|
+| **Session Persistence** | Memory loss during context compaction | Always - read these files when resuming |
+| **RLM (Large Documents)** | Documents too large for context window | When input exceeds ~100K tokens |
+
+---
+
+## System 1: Session Persistence Files
+
+**Purpose**: Maintain continuity across context compaction.
+
+### Files to Check When Resuming
+
+| File | Purpose | Action |
+|------|---------|--------|
+| `context.md` | Current goal & key decisions | Read first to understand what we're doing |
+| `todos.md` | Task progress tracking | Check what's done, what's pending |
+| `insights.md` | Accumulated learnings | Reference for patterns & gotchas |
+
+### How to Use
+
+**When starting a task**:
+1. Update `context.md` with the goal
+2. Add tasks to `todos.md`
+
+**During work**:
+1. Mark todos complete as you go
+2. Add discoveries to `insights.md`
+
+**After context compaction**:
+1. Read all 3 files to recover state
+2. Continue from where you left off
+
+---
+
+## System 2: RLM for Large Documents
+
+**Purpose**: Process documents that exceed context window.
+
+**Verified**: Successfully processed 8-book corpus (4.86M chars, ~1.2M tokens, 6x context window).
 
 ---
 
@@ -113,7 +145,10 @@ Uses RestrictedPython for safe evaluation.
 
 ```
 PERSISTANT MEMORY/
-├── CLAUDE.md                 # This file
+├── CLAUDE.md                 # This file - read first
+├── context.md                # Session persistence: current goal
+├── todos.md                  # Session persistence: task tracking
+├── insights.md               # Session persistence: accumulated learnings
 ├── rlm_tools/
 │   ├── probe.py              # Analyze input structure
 │   ├── chunk.py              # Split large files
@@ -123,7 +158,9 @@ PERSISTANT MEMORY/
 │   ├── chunks/               # Chunked input files
 │   └── results/              # Subagent processing results
 ├── docs/
-│   └── rlm_paper_notes.md    # Paper analysis & implementation details
+│   ├── rlm_paper_notes.md    # Paper analysis & implementation details
+│   ├── HOW_TO_USE.md         # Step-by-step RLM guide
+│   └── VERIFIED_TEST_RESULTS.md # Test verification proof
 └── requirements.txt          # Python dependencies
 ```
 
