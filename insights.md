@@ -58,6 +58,16 @@ For global automation (skills, session recovery), use user settings.
 | Large input (>50K chars) | RLM | Auto-detected via hook |
 | Need a specific skill | Auto-Skills | Auto-matched via hook |
 | Trial-and-error solved | Learning Detection | Auto-detected via hook |
+| Ask about past work | Searchable History | Auto-suggested via hook |
+
+### Searchable History: Zero Data Duplication
+
+The key insight: **index WHERE data is, not WHAT it contains**.
+
+- Claude Code already stores full conversation history in JSONL files
+- We just build a lightweight index with pointers (session ID, line ranges, topics)
+- On search, only load the relevant segment, not the whole history
+- No summarization = no data loss
 
 ## Patterns Identified
 
@@ -124,13 +134,17 @@ Skills are in `~/.claude/skills/` (global), not project-specific. This means:
 
 ```
 ~/.claude/
-├── settings.json           # Hook configuration
+├── settings.json           # Hook configuration (7 hooks)
 ├── hooks/
 │   ├── skill-matcher.py    # UserPromptSubmit: match skills
 │   ├── large-input-detector.py  # UserPromptSubmit: detect large inputs
+│   ├── history-search.py   # UserPromptSubmit: suggest past sessions
 │   ├── skill-tracker.py    # PostToolUse: track usage
 │   ├── detect-learning.py  # Stop: detect learning moments
+│   ├── history-indexer.py  # Stop: index conversation history
 │   └── session-recovery.py # SessionStart: load persistence files
+├── history/
+│   └── index.json          # Searchable history index
 └── skills/
     ├── skill-index/
     │   └── index.json      # Central skill index
@@ -145,13 +159,13 @@ Skills are in `~/.claude/skills/` (global), not project-specific. This means:
 - ~~How to make skills self-improving?~~ → **Auto-skills hooks** (matcher, tracker, learning detection)
 - ~~Can we detect when RLM is needed automatically?~~ → **Yes, via large-input-detector.py hook**
 - ~~How to make session persistence automatic?~~ → **Yes, via session-recovery.py hook**
+- ~~How to search past conversations without loading everything?~~ → **Searchable history with index pointers**
 
 ## Remaining Questions
 
 - What's the optimal chunk size for different document types?
 - How to handle cross-chunk references more elegantly?
 - How does performance vary across programming languages?
-- Should skills be project-specific or always global?
 
 ---
 
