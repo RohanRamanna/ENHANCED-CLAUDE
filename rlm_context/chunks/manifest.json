@@ -1,50 +1,221 @@
 {
-  "total_chunks": 5,
+  "total_chunks": 24,
   "chunks": [
     {
       "filename": "chunk_001.txt",
       "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_001.txt",
       "chunk_num": 1,
       "start_char": 0,
-      "end_char": 20035,
-      "char_count": 20035,
-      "line_count": 293
+      "end_char": 200062,
+      "char_count": 200062,
+      "line_count": 4214
     },
     {
       "filename": "chunk_002.txt",
       "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_002.txt",
       "chunk_num": 2,
-      "start_char": 19535,
-      "end_char": 39621,
-      "char_count": 20086,
-      "line_count": 287
+      "start_char": 199562,
+      "end_char": 399639,
+      "char_count": 200077,
+      "line_count": 3837
     },
     {
       "filename": "chunk_003.txt",
       "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_003.txt",
       "chunk_num": 3,
-      "start_char": 39121,
-      "end_char": 59139,
-      "char_count": 20018,
-      "line_count": 290
+      "start_char": 399139,
+      "end_char": 599233,
+      "char_count": 200094,
+      "line_count": 3854
     },
     {
       "filename": "chunk_004.txt",
       "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_004.txt",
       "chunk_num": 4,
-      "start_char": 58639,
-      "end_char": 78713,
-      "char_count": 20074,
-      "line_count": 359
+      "start_char": 598733,
+      "end_char": 798779,
+      "char_count": 200046,
+      "line_count": 4234
     },
     {
       "filename": "chunk_005.txt",
       "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_005.txt",
       "chunk_num": 5,
-      "start_char": 78213,
-      "end_char": 98213,
-      "char_count": 10537,
-      "line_count": 152
+      "start_char": 798279,
+      "end_char": 998377,
+      "char_count": 200098,
+      "line_count": 4086
+    },
+    {
+      "filename": "chunk_006.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_006.txt",
+      "chunk_num": 6,
+      "start_char": 997877,
+      "end_char": 1197954,
+      "char_count": 200077,
+      "line_count": 4383
+    },
+    {
+      "filename": "chunk_007.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_007.txt",
+      "chunk_num": 7,
+      "start_char": 1197454,
+      "end_char": 1397519,
+      "char_count": 200065,
+      "line_count": 3910
+    },
+    {
+      "filename": "chunk_008.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_008.txt",
+      "chunk_num": 8,
+      "start_char": 1397019,
+      "end_char": 1597115,
+      "char_count": 200096,
+      "line_count": 3504
+    },
+    {
+      "filename": "chunk_009.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_009.txt",
+      "chunk_num": 9,
+      "start_char": 1596615,
+      "end_char": 1796687,
+      "char_count": 200072,
+      "line_count": 3872
+    },
+    {
+      "filename": "chunk_010.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_010.txt",
+      "chunk_num": 10,
+      "start_char": 1796187,
+      "end_char": 1996241,
+      "char_count": 200054,
+      "line_count": 3537
+    },
+    {
+      "filename": "chunk_011.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_011.txt",
+      "chunk_num": 11,
+      "start_char": 1995741,
+      "end_char": 2195803,
+      "char_count": 200062,
+      "line_count": 3511
+    },
+    {
+      "filename": "chunk_012.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_012.txt",
+      "chunk_num": 12,
+      "start_char": 2195303,
+      "end_char": 2395395,
+      "char_count": 200092,
+      "line_count": 3482
+    },
+    {
+      "filename": "chunk_013.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_013.txt",
+      "chunk_num": 13,
+      "start_char": 2394895,
+      "end_char": 2594981,
+      "char_count": 200086,
+      "line_count": 3519
+    },
+    {
+      "filename": "chunk_014.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_014.txt",
+      "chunk_num": 14,
+      "start_char": 2594481,
+      "end_char": 2794560,
+      "char_count": 200079,
+      "line_count": 3516
+    },
+    {
+      "filename": "chunk_015.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_015.txt",
+      "chunk_num": 15,
+      "start_char": 2794060,
+      "end_char": 2994140,
+      "char_count": 200080,
+      "line_count": 3728
+    },
+    {
+      "filename": "chunk_016.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_016.txt",
+      "chunk_num": 16,
+      "start_char": 2993640,
+      "end_char": 3193693,
+      "char_count": 200053,
+      "line_count": 4450
+    },
+    {
+      "filename": "chunk_017.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_017.txt",
+      "chunk_num": 17,
+      "start_char": 3193193,
+      "end_char": 3393291,
+      "char_count": 200098,
+      "line_count": 3471
+    },
+    {
+      "filename": "chunk_018.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_018.txt",
+      "chunk_num": 18,
+      "start_char": 3392791,
+      "end_char": 3592838,
+      "char_count": 200047,
+      "line_count": 3797
+    },
+    {
+      "filename": "chunk_019.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_019.txt",
+      "chunk_num": 19,
+      "start_char": 3592338,
+      "end_char": 3792403,
+      "char_count": 200065,
+      "line_count": 4267
+    },
+    {
+      "filename": "chunk_020.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_020.txt",
+      "chunk_num": 20,
+      "start_char": 3791903,
+      "end_char": 3991955,
+      "char_count": 200052,
+      "line_count": 4137
+    },
+    {
+      "filename": "chunk_021.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_021.txt",
+      "chunk_num": 21,
+      "start_char": 3991455,
+      "end_char": 4191554,
+      "char_count": 200099,
+      "line_count": 4228
+    },
+    {
+      "filename": "chunk_022.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_022.txt",
+      "chunk_num": 22,
+      "start_char": 4191054,
+      "end_char": 4391122,
+      "char_count": 200068,
+      "line_count": 4111
+    },
+    {
+      "filename": "chunk_023.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_023.txt",
+      "chunk_num": 23,
+      "start_char": 4390622,
+      "end_char": 4590669,
+      "char_count": 200047,
+      "line_count": 3699
+    },
+    {
+      "filename": "chunk_024.txt",
+      "path": "/Users/rohanramanna/Documents/AI CODING STUFF/PERSISTANT MEMORY/rlm_context/chunks/chunk_024.txt",
+      "chunk_num": 24,
+      "start_char": 4590169,
+      "end_char": 4790169,
+      "char_count": 108259,
+      "line_count": 2320
     }
   ]
 }

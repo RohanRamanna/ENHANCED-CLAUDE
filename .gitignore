@@ -13,6 +13,9 @@ rlm_context/input.txt
 rlm_context/chunks/*.txt
 rlm_context/results/*.txt
 rlm_context/aggregated_results.txt
+
+# Test corpus files (downloaded from Project Gutenberg)
+rlm_context/book*.txt
 !rlm_context/.gitkeep
 !rlm_context/chunks/.gitkeep
 !rlm_context/results/.gitkeep
