@@ -162,21 +162,17 @@ def main():
     is_learning_moment, reason = should_trigger_learning_moment(messages)
 
     if is_learning_moment:
-        # Output suggestion (but don't block - just add context)
-        # Using additionalContext instead of blocking to be less intrusive
+        # For Stop hooks, use systemMessage (not additionalContext)
         output = {
-            "hookSpecificOutput": {
-                "additionalContext": f"""
-[LEARNING MOMENT DETECTED]
+            "continue": True,  # Don't block, just add a message
+            "systemMessage": f"""[LEARNING MOMENT DETECTED]
 {reason}
 
 You solved a problem through trial-and-error. Consider saving this as a reusable skill:
 1. Run /skill-creator to document the solution
 2. Or add to insights.md for future reference
 
-This helps avoid re-discovering the same solution later.
-"""
-            }
+This helps avoid re-discovering the same solution later."""
         }
         print(json.dumps(output))
 
