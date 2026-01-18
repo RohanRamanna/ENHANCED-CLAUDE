@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '--- SESSION RESUMED AFTER COMPACTION ---' && echo 'Reading session persistence files as instructed by RESUME.md:' && cat \"$CLAUDE_PROJECT_DIR/RESUME.md\""
+          }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '--- SESSION RESUMED ---' && echo 'Reading session persistence files:' && cat \"$CLAUDE_PROJECT_DIR/RESUME.md\""
+          }
+        ]
+      }
+    ]
+  }
+}

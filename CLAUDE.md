@@ -106,6 +106,27 @@ After using a skill, check:
 | `todos.md` | Task progress tracking with phases | When starting/completing tasks |
 | `insights.md` | Accumulated learnings & patterns | When discovering something reusable |
 
+### Automatic Recovery (SessionStart Hook)
+
+A hook in `.claude/settings.json` automatically triggers after context compaction:
+- Displays `RESUME.md` content reminding Claude to read persistence files
+- Works for both manual `/compact` and auto-compaction
+- Also triggers on `/resume` and `--continue`
+
+**Configuration** (`.claude/settings.json`):
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [{ "type": "command", "command": "cat \"$CLAUDE_PROJECT_DIR/RESUME.md\"" }]
+      }
+    ]
+  }
+}
+```
+
 ### Session Persistence Flow
 
 ```
