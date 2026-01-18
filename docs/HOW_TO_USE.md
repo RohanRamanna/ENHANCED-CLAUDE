@@ -697,16 +697,21 @@ Read the aggregated results or ask Claude to summarize them.
 
 ## Troubleshooting
 
-### Hooks not running?
+### Hooks not running or "UserPromptSubmit hook error"?
 
 ```bash
-# 1. Check hooks are executable
-ls -la ~/.claude/hooks/
+# 1. Ensure all hooks are executable (common fix!)
+chmod +x ~/.claude/hooks/*.py
 
-# 2. Reload hooks in Claude Code
+# 2. Check permissions
+ls -la ~/.claude/hooks/*.py
+# Should show -rwxr-xr-x for all .py files
+
+# 3. Reload hooks in Claude Code
 # Type: /hooks
 
-# 3. Or restart Claude Code
+# 4. Check hook logs for errors
+tail -20 ~/.claude/hooks/logs/skill-matcher.log
 ```
 
 ### Skill matching not working?

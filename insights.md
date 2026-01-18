@@ -56,7 +56,7 @@ logger.debug("Processing details")
 logger.error("Something went wrong", exc_info=True)
 ```
 
-Logs are stored in `~/.claude/logs/hooks/{hook-name}.log` with automatic 5MB rotation.
+Logs are stored in `~/.claude/hooks/logs/{hook-name}.log` with automatic 1MB rotation.
 
 ### User vs Project Settings
 
@@ -187,7 +187,7 @@ Skills are in `~/.claude/skills/` (global), not project-specific. This means:
 ```
 ~/.claude/
 ├── settings.json           # Hook configuration (8 hooks)
-├── logs/hooks/             # Hook debug logs (auto-rotated)
+├── hooks/logs/             # Hook debug logs (auto-rotated)
 ├── hooks/
 │   ├── hook_logger.py      # Shared logging utility
 │   ├── skill-matcher.py    # UserPromptSubmit: match skills
