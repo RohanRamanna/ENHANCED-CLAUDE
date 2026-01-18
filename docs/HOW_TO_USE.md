@@ -709,6 +709,17 @@ The threshold is 50K characters. For smaller inputs, RLM isn't needed.
 
 ---
 
+## Inspiration & Credits
+
+### Original Idea: Dylan Davis
+
+The 3-file persistence system (`context.md`, `todos.md`, `insights.md`) was inspired by **Dylan Davis**:
+- [YouTube: Claude Code Persistent Memory](https://youtu.be/H-uwnpmziGA?si=VGerxvUFGksgMtBX)
+
+We extended this idea by applying RLM principles to conversation history, enabling intelligent segment-based recovery after context compaction.
+
+---
+
 ## Need Help?
 
 - Check `CLAUDE.md` for Claude Code-specific guidance

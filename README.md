@@ -216,7 +216,15 @@ cp .claude/settings.json ~/.claude/settings.json
 
 ---
 
-## Reference
+## Inspiration & References
+
+### Original Idea: Dylan Davis
+
+The 3-file persistence system (`context.md`, `todos.md`, `insights.md`) was inspired by [Dylan Davis's video on Claude Code persistent memory](https://youtu.be/H-uwnpmziGA?si=VGerxvUFGksgMtBX).
+
+We extended this idea by applying RLM (Recursive Language Model) principles to conversation history, enabling intelligent segment-based recovery after context compaction.
+
+### RLM Research Paper
 
 ```bibtex
 @article{zhang2025rlm,

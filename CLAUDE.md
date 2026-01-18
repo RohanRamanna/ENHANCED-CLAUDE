@@ -433,3 +433,21 @@ PERSISTANT MEMORY/
 | FastAPI Codebase | 3.68M chars (~920K tokens) | ✅ Security classes verified |
 
 See `docs/VERIFIED_TEST_RESULTS.md` for full verification.
+
+---
+
+## Inspiration & Credits
+
+### Original Idea: Dylan Davis
+
+The 3-file persistence system (`context.md`, `todos.md`, `insights.md`) was inspired by **Dylan Davis**:
+- [YouTube: Claude Code Persistent Memory](https://youtu.be/H-uwnpmziGA?si=VGerxvUFGksgMtBX)
+
+### RLM Enhancement
+
+We extended Dylan's idea by applying **RLM (Recursive Language Model)** principles from MIT CSAIL research to enable:
+- Intelligent segment-based recovery after context compaction
+- Zero data loss through actual conversation content retrieval
+- Relevance scoring for context prioritization
+
+**Research Paper**: [arXiv:2512.24601](https://arxiv.org/abs/2512.24601) - "Recursive Language Models" by Zhang, Kraska, and Khattab
