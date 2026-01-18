@@ -4,7 +4,7 @@
 
 ## In Progress
 
-- [ ] Merge `add-skills` branch into main
+*No tasks currently in progress*
 
 ## Pending
 
@@ -54,7 +54,7 @@
 - [x] Update CLAUDE.md with System 3 (Skills Library)
 - [x] Update README.md with skills in repo structure
 - [x] Push to new branch
-- [ ] Merge into main
+- [x] Merge into main
 
 ---
 
