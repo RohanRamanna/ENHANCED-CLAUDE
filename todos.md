@@ -6,6 +6,10 @@
 
 *No tasks currently in progress*
 
+## Pending (Priority)
+
+- [ ] **RLM-based live session persistence** - Apply RLM principles to CURRENT conversation so compacting has zero data loss. Auto-chunk/index live session, intelligently reload relevant context after compaction (not just lightweight context.md summaries)
+
 ## Pending
 
 - [ ] Add more chunking strategies (semantic, by function, etc.)
