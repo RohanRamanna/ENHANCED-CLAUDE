@@ -22,9 +22,23 @@ Claude Code's native tools map directly to the RLM architecture:
 
 **No Anthropic API key needed** - just use Claude Code's built-in capabilities.
 
+## Two Systems for Persistent Memory
+
+| System | Problem Solved | Files |
+|--------|---------------|-------|
+| **Session Persistence** | Memory loss during context compaction | `context.md`, `todos.md`, `insights.md` |
+| **RLM (Large Documents)** | Documents too large for context window | `rlm_tools/*` |
+
 ## Quick Start
 
-### Processing Large Documents
+### Session Persistence (Always Use)
+
+When context compacts, Claude reads these files to recover state:
+- `context.md` - Current goal & key decisions
+- `todos.md` - Task progress tracking
+- `insights.md` - Accumulated learnings
+
+### Processing Large Documents (RLM)
 
 ```bash
 # 1. Probe structure
@@ -66,7 +80,10 @@ See [docs/VERIFIED_TEST_RESULTS.md](docs/VERIFIED_TEST_RESULTS.md) for full veri
 
 ```
 .
-├── CLAUDE.md              # Claude Code guidance & RLM protocol
+├── CLAUDE.md              # Claude Code guidance (read first)
+├── context.md             # Session persistence: current goal
+├── todos.md               # Session persistence: task tracking
+├── insights.md            # Session persistence: accumulated learnings
 ├── rlm_tools/
 │   ├── probe.py           # Analyze input structure
 │   ├── chunk.py           # Split large files

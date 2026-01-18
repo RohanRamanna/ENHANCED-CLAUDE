@@ -1,17 +1,76 @@
-# How to Use the RLM System
+# How to Use the Persistent Memory System
 
-A step-by-step guide to processing large documents with Recursive Language Models in Claude Code.
+This repository provides **two systems** for Claude Code. This guide covers both.
 
 ---
 
 ## Table of Contents
 
-1. [Prerequisites](#prerequisites)
-2. [Quick Start](#quick-start)
-3. [Detailed Workflow](#detailed-workflow)
-4. [Tool Reference](#tool-reference)
-5. [Examples](#examples)
-6. [Troubleshooting](#troubleshooting)
+1. [Session Persistence](#session-persistence) - Memory across context compaction
+2. [RLM for Large Documents](#rlm-for-large-documents) - Processing oversized inputs
+3. [Prerequisites](#prerequisites)
+4. [Quick Start](#quick-start)
+5. [Detailed Workflow](#detailed-workflow)
+6. [Tool Reference](#tool-reference)
+7. [Examples](#examples)
+8. [Troubleshooting](#troubleshooting)
+
+---
+
+## Session Persistence
+
+**Problem**: When Claude's context window fills up, it compacts and loses memory of what you were working on.
+
+**Solution**: Three files that Claude reads when resuming:
+
+| File | Purpose | When to Update |
+|------|---------|----------------|
+| `context.md` | Current goal & key decisions | When starting a new task |
+| `todos.md` | Task progress tracking | When completing tasks |
+| `insights.md` | Accumulated learnings | When discovering something useful |
+
+### How It Works
+
+**Starting a task**:
+```markdown
+<!-- Update context.md -->
+## Current Goal
+Implement user authentication for the API
+
+## Key Decisions Made
+- Using JWT tokens (not sessions)
+- Storing refresh tokens in Redis
+```
+
+**During work**:
+```markdown
+<!-- Update todos.md -->
+## In Progress
+- [ ] Create auth middleware
+
+## Completed
+- [x] Set up JWT library
+- [x] Create user model
+```
+
+**After learning something**:
+```markdown
+<!-- Update insights.md -->
+## Key Learnings
+- JWT refresh tokens should be rotated on each use
+- Redis connection pooling is essential for performance
+```
+
+**After context compaction**:
+Claude reads all 3 files and continues where it left off.
+
+---
+
+## RLM for Large Documents
+
+**Problem**: Documents larger than ~200K tokens cannot fit in Claude's context window.
+
+**Solution**: Chunk the document, process with parallel subagents, aggregate results.
 
 ---
 
