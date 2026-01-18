@@ -1,0 +1,17 @@
+{
+  "category": "meta",
+  "tags": ["loading", "context", "efficiency", "meta-skill"],
+  "dependencies": ["skill-index"],
+  "created": "2026-01-15",
+  "lastUpdated": "2026-01-15",
+  "version": "1.2",
+  "useCount": 0,
+  "successCount": 0,
+  "failureCount": 0,
+  "lastUsed": null,
+  "changelog": [
+    {"version": "1.0", "date": "2026-01-15", "change": "Initial creation with 3-level loading system"},
+    {"version": "1.1", "date": "2026-01-15", "change": "Added post-use deviation detection to catch workarounds"},
+    {"version": "1.2", "date": "2026-01-15", "change": "Added mandatory post-task learning check to catch new skills from trial-and-error"}
+  ]
+}

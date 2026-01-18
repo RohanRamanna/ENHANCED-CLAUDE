@@ -1,0 +1,15 @@
+{
+  "category": "meta",
+  "tags": ["tracking", "quality", "maintenance", "analytics", "meta-skill"],
+  "dependencies": ["skill-index"],
+  "created": "2026-01-15",
+  "lastUpdated": "2026-01-15",
+  "version": "1.0",
+  "useCount": 0,
+  "successCount": 0,
+  "failureCount": 0,
+  "lastUsed": null,
+  "changelog": [
+    {"version": "1.0", "date": "2026-01-15", "change": "Initial creation with health indicators and reporting"}
+  ]
+}

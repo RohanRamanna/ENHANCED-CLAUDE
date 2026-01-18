@@ -4,14 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## Two Systems for Persistent Memory
+## Three Systems for Enhanced Claude Code
 
-This repository provides **two complementary systems**:
+This repository provides **three complementary systems**:
 
 | System | Problem Solved | When to Use |
 |--------|---------------|-------------|
 | **Session Persistence** | Memory loss during context compaction | Always - read these files when resuming |
 | **RLM (Large Documents)** | Documents too large for context window | When input exceeds ~100K tokens |
+| **Skills Library** | Reusable patterns and workflows | Invoke with `/skill-name` or Skill tool |
 
 ---
 
@@ -54,6 +55,35 @@ This repository provides **two complementary systems**:
 | FastAPI Codebase | Python (1,252 files) | 3.68M chars (~920K tokens) | 4.6x | ✅ Security classes verified via grep |
 
 **Works on both prose AND code.**
+
+---
+
+## System 3: Skills Library
+
+**Purpose**: Reusable patterns, workflows, and specialized capabilities.
+
+### Available Skills
+
+| Skill | Purpose |
+|-------|---------|
+| `skill-index` | Index and discover available skills |
+| `skill-creator` | Auto-detect learning moments and create skills |
+| `skill-matcher` | Find best matching skill for a request |
+| `web-research` | Fallback research when stuck |
+| `markdown-to-pdf` | Convert markdown to PDF |
+| `llm-api-tool-use` | Claude API tool use patterns |
+| `udcp` | Update docs, commit, push workflow |
+| + more... | See `skills/SKILLS_GUIDE.md` |
+
+### How to Use
+
+```bash
+# Invoke a skill
+/skill-name
+
+# Or use the Skill tool
+Skill(skill="skill-name")
+```
 
 ---
 
@@ -155,6 +185,9 @@ PERSISTANT MEMORY/
 ├── context.md                # Session persistence: current goal
 ├── todos.md                  # Session persistence: task tracking
 ├── insights.md               # Session persistence: accumulated learnings
+├── skills/                   # Claude Code skills library
+│   ├── SKILLS_GUIDE.md       # How to use and create skills
+│   └── */                    # Individual skill folders (16 skills)
 ├── rlm_tools/
 │   ├── probe.py              # Analyze input structure
 │   ├── chunk.py              # Split large files
@@ -165,7 +198,7 @@ PERSISTANT MEMORY/
 │   └── results/              # Subagent processing results
 ├── docs/
 │   ├── rlm_paper_notes.md    # Paper analysis & implementation details
-│   ├── HOW_TO_USE.md         # Step-by-step RLM guide
+│   ├── HOW_TO_USE.md         # Step-by-step guide
 │   └── VERIFIED_TEST_RESULTS.md # Test verification proof
 └── requirements.txt          # Python dependencies
 ```

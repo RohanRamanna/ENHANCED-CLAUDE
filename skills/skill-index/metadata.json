@@ -1,0 +1,15 @@
+{
+  "category": "meta",
+  "tags": ["discovery", "search", "index", "meta-skill"],
+  "dependencies": [],
+  "created": "2026-01-15",
+  "lastUpdated": "2026-01-15",
+  "version": "1.0",
+  "useCount": 0,
+  "successCount": 0,
+  "failureCount": 0,
+  "lastUsed": null,
+  "changelog": [
+    {"version": "1.0", "date": "2026-01-15", "change": "Initial creation with 7 indexed skills"}
+  ]
+}

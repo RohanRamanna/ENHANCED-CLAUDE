@@ -93,6 +93,9 @@ See [docs/VERIFIED_TEST_RESULTS.md](docs/VERIFIED_TEST_RESULTS.md) for full veri
 ├── context.md             # Session persistence: current goal
 ├── todos.md               # Session persistence: task tracking
 ├── insights.md            # Session persistence: accumulated learnings
+├── skills/                # Claude Code skills library
+│   ├── SKILLS_GUIDE.md    # How to use and create skills
+│   └── */                 # Individual skill folders
 ├── rlm_tools/
 │   ├── probe.py           # Analyze input structure
 │   ├── chunk.py           # Split large files

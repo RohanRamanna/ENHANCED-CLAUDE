@@ -1,0 +1,141 @@
+{
+  "skills": [
+    {
+      "name": "skill-creator",
+      "category": "meta",
+      "tags": ["learning", "skills", "automation", "meta-skill"],
+      "summary": "Auto-detect learning moments and create reusable skills",
+      "dependencies": [],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-updater",
+      "category": "meta",
+      "tags": ["learning", "skills", "maintenance", "meta-skill"],
+      "summary": "Update skills when they fail and better solutions found",
+      "dependencies": [],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "web-research",
+      "category": "meta",
+      "tags": ["research", "web", "fallback", "troubleshooting"],
+      "summary": "Fallback research when stuck after initial attempt fails",
+      "dependencies": [],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "llm-api-tool-use",
+      "category": "api",
+      "tags": ["anthropic", "llm", "tool-use", "python", "sdk", "agents"],
+      "summary": "Claude API tool use with Python SDK",
+      "dependencies": [],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "deno2-http-kv-server",
+      "category": "setup",
+      "tags": ["deno", "http", "kv", "database", "server", "typescript"],
+      "summary": "Deno 2 HTTP server with KV database",
+      "dependencies": [],
+      "lastUsed": "2026-01-15",
+      "useCount": 1
+    },
+    {
+      "name": "hono-bun-sqlite-api",
+      "category": "setup",
+      "tags": ["hono", "bun", "sqlite", "api", "rest", "typescript"],
+      "summary": "REST API with Hono, Bun and SQLite",
+      "dependencies": [],
+      "lastUsed": "2026-01-15",
+      "useCount": 2
+    },
+    {
+      "name": "skill-index",
+      "category": "meta",
+      "tags": ["discovery", "search", "index", "meta-skill"],
+      "summary": "Index and discover available skills by category/tags",
+      "dependencies": [],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-loader",
+      "category": "meta",
+      "tags": ["loading", "context", "efficiency", "meta-skill"],
+      "summary": "Lazy-load skills to minimize context usage",
+      "dependencies": ["skill-index"],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-health",
+      "category": "meta",
+      "tags": ["tracking", "quality", "maintenance", "analytics", "meta-skill"],
+      "summary": "Track skill usage and identify skills needing updates",
+      "dependencies": ["skill-index"],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-improver",
+      "category": "meta",
+      "tags": ["improvement", "proactive", "suggestions", "meta-skill"],
+      "summary": "Proactively suggest skill improvements during usage",
+      "dependencies": ["skill-index", "skill-updater"],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-tracker",
+      "category": "meta",
+      "tags": ["tracking", "metrics", "analytics", "automation", "meta-skill"],
+      "summary": "Automatically track skill usage, success, and failure",
+      "dependencies": ["skill-index"],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-validator",
+      "category": "meta",
+      "tags": ["validation", "testing", "quality", "dependencies", "meta-skill"],
+      "summary": "Validate skills still work by checking dependencies and examples",
+      "dependencies": ["skill-index", "skill-health"],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "skill-matcher",
+      "category": "meta",
+      "tags": ["discovery", "matching", "search", "suggestions", "meta-skill"],
+      "summary": "Smart skill discovery with scoring and proactive suggestions",
+      "dependencies": ["skill-index"],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "udcp",
+      "category": "meta",
+      "tags": ["git", "commit", "push", "documentation", "workflow", "meta-skill"],
+      "summary": "Update documentation, commit, and push in one command",
+      "dependencies": [],
+      "lastUsed": null,
+      "useCount": 0
+    },
+    {
+      "name": "markdown-to-pdf",
+      "category": "setup",
+      "tags": ["markdown", "pdf", "documentation", "export", "macos"],
+      "summary": "Convert Markdown files to PDF on macOS without LaTeX",
+      "dependencies": [],
+      "lastUsed": "2026-01-15",
+      "useCount": 1
+    }
+  ],
+  "lastUpdated": "2026-01-15",
+  "categories": ["meta", "setup", "api", "debugging", "database"]
+}
