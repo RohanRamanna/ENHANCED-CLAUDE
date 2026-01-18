@@ -1,0 +1,13 @@
+{
+  "name": "rlm",
+  "version": "1.0.0",
+  "description": "Reading Language Model for processing documents larger than context window",
+  "author": "Enhanced Claude",
+  "created": "2026-01-19",
+  "lastUsed": null,
+  "useCount": 0,
+  "successCount": 0,
+  "failureCount": 0,
+  "tags": ["rlm", "large-documents", "chunking", "subagents", "aggregation"],
+  "triggers": ["large input", "big file", "huge codebase", "million tokens", "too large", "context limit"]
+}

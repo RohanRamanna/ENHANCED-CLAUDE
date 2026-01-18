@@ -12,11 +12,20 @@
 
 ## Pending
 
-- [ ] Add more chunking strategies (semantic, by function, etc.)
 - [ ] Consider async subagent processing for faster results
-- [ ] Add progress tracking to chunk processing
-- [ ] Test on other languages (JavaScript, Go, Rust codebases)
-- [ ] Create RLM-specific skill for automated large document processing
+- [ ] Test Go and Rust codebases (Python, JS, TS verified)
+
+## Completed (This Session)
+
+### Phase 13: RLM Enhancements
+- [x] Create RLM-specific skill (`~/.claude/skills/rlm/SKILL.md`)
+- [x] Add semantic code chunking strategy (`--strategy code`)
+- [x] Support 6 languages: Python, JavaScript, TypeScript, Go, Rust, Java
+- [x] Add progress tracking with ETA (`--progress` flag)
+- [x] Test on Python codebase (chunk.py) - verified
+- [x] Test on TypeScript codebase - interfaces, types, classes detected
+- [x] Test on JavaScript codebase - classes, arrow functions detected
+- [x] Update skill-index with new RLM skill (17 skills total)
 
 ## Completed (This Session)
 
@@ -123,4 +132,4 @@
 
 ---
 
-**Last Updated**: 2026-01-18
+**Last Updated**: 2026-01-19

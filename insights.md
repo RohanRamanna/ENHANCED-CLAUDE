@@ -187,12 +187,27 @@ Skills are in `~/.claude/skills/` (global), not project-specific. This means:
 - ~~How to make session persistence automatic?~~ → **Yes, via session-recovery.py hook**
 - ~~How to search past conversations without loading everything?~~ → **Searchable history with index pointers**
 
+### Semantic Code Chunking Works Well
+
+The `--strategy code` option intelligently splits code at function/class boundaries:
+- Auto-detects language from code patterns (Python colons, TS types, etc.)
+- Keeps related code together (class with methods in same chunk)
+- Entities metadata helps understand what each chunk contains
+
+**Language detection patterns**:
+| Language | Key Indicators |
+|----------|---------------|
+| Python | `def `, `class `, trailing `:` |
+| TypeScript | `interface`, `type =`, `: string/number` |
+| JavaScript | `function`, `const =`, `=>` |
+| Go | `func`, `package`, `type struct` |
+| Rust | `fn`, `impl`, `struct`, `enum` |
+
 ## Remaining Questions
 
 - What's the optimal chunk size for different document types?
 - How to handle cross-chunk references more elegantly?
-- How does performance vary across programming languages?
 
 ---
 
-**Last Updated**: 2026-01-18
+**Last Updated**: 2026-01-19
