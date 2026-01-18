@@ -12,6 +12,12 @@ import sys
 import os
 from datetime import datetime, timedelta
 
+# Add hooks directory to path for shared modules
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from hook_logger import HookLogger
+
+logger = HookLogger("skill-matcher")
+
 # Skill index location
 SKILL_INDEX_PATH = os.path.expanduser("~/.claude/skills/skill-index/index.json")
 
@@ -80,16 +86,23 @@ def score_skill(skill, prompt_lower, prompt_words):
     return score
 
 def main():
+    logger.info("Hook started")
+
     # Read hook input from stdin
     try:
         hook_input = json.load(sys.stdin)
-    except json.JSONDecodeError:
-        # No valid input, exit silently
+        logger.log_input(hook_input)
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}", exc_info=True)
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Unexpected error reading input: {e}", exc_info=True)
         sys.exit(0)
 
     # Get the user prompt
     prompt = hook_input.get("prompt", "")
     if not prompt:
+        logger.debug("No prompt provided, exiting")
         sys.exit(0)
 
     # Prepare prompt for matching
@@ -97,8 +110,13 @@ def main():
     prompt_words = set(prompt_lower.replace("-", " ").replace("_", " ").split())
 
     # Load skill index
-    index = load_skill_index()
-    skills = index.get("skills", [])
+    try:
+        index = load_skill_index()
+        skills = index.get("skills", [])
+        logger.debug(f"Loaded {len(skills)} skills from index")
+    except Exception as e:
+        logger.error(f"Error loading skill index: {e}", exc_info=True)
+        sys.exit(0)
 
     # Score all skills
     scored_skills = []
@@ -109,6 +127,7 @@ def main():
 
     # Sort by score descending
     scored_skills.sort(key=lambda x: x[0], reverse=True)
+    logger.debug(f"Found {len(scored_skills)} potential matches")
 
     # Build output for matches
     if scored_skills:
@@ -131,8 +150,11 @@ def main():
                     "additionalContext": "\n".join(lines)
                 }
             }
+            logger.log_output(output)
             print(json.dumps(output))
+            logger.info(f"Matched {len(strong_matches)} skills")
 
+    logger.info("Hook completed successfully")
     sys.exit(0)
 
 if __name__ == "__main__":

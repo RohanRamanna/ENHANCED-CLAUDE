@@ -13,6 +13,12 @@ import sys
 import os
 from datetime import datetime
 
+# Add hooks directory to path for shared modules
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from hook_logger import HookLogger
+
+logger = HookLogger("history-search")
+
 # Index location
 INDEX_PATH = os.path.expanduser("~/.claude/history/index.json")
 
@@ -109,10 +115,17 @@ def score_session(session, prompt_words, topics_index):
 
 
 def main():
+    logger.info("Hook started")
+
     # Read hook input from stdin
     try:
         hook_input = json.load(sys.stdin)
-    except json.JSONDecodeError:
+        logger.log_input(hook_input)
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}", exc_info=True)
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Unexpected error reading input: {e}", exc_info=True)
         sys.exit(0)
 
     # Get the user prompt and current working directory
@@ -120,6 +133,7 @@ def main():
     cwd = hook_input.get("cwd", "")
 
     if not prompt or len(prompt) < 10:
+        logger.debug("Prompt too short, exiting")
         sys.exit(0)
 
     # Prepare prompt for matching
@@ -165,6 +179,7 @@ def main():
     # Build output for top matches
     if scored_sessions:
         top_matches = scored_sessions[:3]
+        logger.info(f"Found {len(scored_sessions)} matches, showing top {len(top_matches)}")
 
         lines = ["[HISTORY MATCH] Found relevant past work in this project:"]
         for match in top_matches:
@@ -181,8 +196,12 @@ def main():
                 "additionalContext": "\n".join(lines)
             }
         }
+        logger.log_output(output)
         print(json.dumps(output))
+    else:
+        logger.debug("No matches found")
 
+    logger.info("Hook completed successfully")
     sys.exit(0)
 
 

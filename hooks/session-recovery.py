@@ -19,8 +19,13 @@ import re
 from datetime import datetime, timedelta
 from pathlib import Path
 
-# Project directory with persistence files
-# Auto-detect from environment or current working directory
+# Add hooks directory to path for shared modules
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from hook_logger import HookLogger
+
+logger = HookLogger("session-recovery")
+
+# Project directory with persistence files (auto-detect from cwd)
 PROJECT_DIR = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
 
 # Directories
@@ -327,14 +332,32 @@ def build_recovery_context():
 
 
 def main():
+    global PROJECT_DIR
+    logger.info("Hook started")
+
     # Read hook input from stdin
     try:
         hook_input = json.load(sys.stdin)
-    except json.JSONDecodeError:
+        logger.debug(f"Session trigger: {hook_input.get('session_trigger', 'unknown')}")
+
+        # Use cwd from hook input if available
+        if hook_input.get("cwd"):
+            PROJECT_DIR = hook_input["cwd"]
+            logger.debug(f"Using PROJECT_DIR from cwd: {PROJECT_DIR}")
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}", exc_info=True)
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Unexpected error reading input: {e}", exc_info=True)
         sys.exit(0)
 
     # Build recovery context
-    recovery_context = build_recovery_context()
+    try:
+        recovery_context = build_recovery_context()
+        logger.debug(f"Built recovery context ({len(recovery_context)} chars)")
+    except Exception as e:
+        logger.error(f"Error building recovery context: {e}", exc_info=True)
+        sys.exit(0)
 
     # Output as additionalContext
     output = {
@@ -343,6 +366,7 @@ def main():
         }
     }
     print(json.dumps(output))
+    logger.info("Hook completed successfully")
     sys.exit(0)
 
 

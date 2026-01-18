@@ -13,6 +13,12 @@ import os
 import re
 from datetime import datetime
 
+# Add hooks directory to path for shared modules
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from hook_logger import HookLogger
+
+logger = HookLogger("skill-tracker")
+
 SKILLS_DIR = os.path.expanduser("~/.claude/skills")
 
 def update_skill_metadata(skill_name):
@@ -73,10 +79,17 @@ def update_skill_index(skill_name):
         return False
 
 def main():
+    logger.info("Hook started")
+
     # Read hook input from stdin
     try:
         hook_input = json.load(sys.stdin)
-    except json.JSONDecodeError:
+        logger.debug(f"Tool: {hook_input.get('tool_name', 'unknown')}")
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}", exc_info=True)
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Unexpected error reading input: {e}", exc_info=True)
         sys.exit(0)
 
     # Get tool info
@@ -85,9 +98,11 @@ def main():
 
     # Only track Read operations on skill files
     if tool_name != "Read":
+        logger.debug(f"Not a Read operation ({tool_name}), exiting")
         sys.exit(0)
 
     file_path = tool_input.get("file_path", "")
+    logger.debug(f"File path: {file_path}")
 
     # Check if this is a skill file
     # Pattern: ~/.claude/skills/<skill-name>/SKILL.md
@@ -97,15 +112,27 @@ def main():
 
     if match:
         skill_name = match.group(1)
+        logger.info(f"Skill file detected: {skill_name}")
 
         # Don't track meta-skill index reads
         if skill_name == "skill-index":
+            logger.debug("Skipping skill-index tracking")
             sys.exit(0)
 
         # Update metadata and index
-        update_skill_metadata(skill_name)
-        update_skill_index(skill_name)
+        if update_skill_metadata(skill_name):
+            logger.info(f"Updated metadata for skill: {skill_name}")
+        else:
+            logger.warning(f"Failed to update metadata for skill: {skill_name}")
 
+        if update_skill_index(skill_name):
+            logger.debug(f"Updated index for skill: {skill_name}")
+        else:
+            logger.warning(f"Failed to update index for skill: {skill_name}")
+    else:
+        logger.debug("Not a skill file, exiting")
+
+    logger.info("Hook completed successfully")
     sys.exit(0)
 
 if __name__ == "__main__":

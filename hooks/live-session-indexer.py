@@ -15,6 +15,12 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+# Add hooks directory to path for shared modules
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from hook_logger import HookLogger
+
+logger = HookLogger("live-session-indexer")
+
 # Directories
 SESSIONS_DIR = os.path.expanduser("~/.claude/sessions")
 PROJECTS_DIR = os.path.expanduser("~/.claude/projects")
@@ -371,31 +377,57 @@ def index_session(session_info, existing_index):
 
 
 def main():
+    logger.info("Hook started")
+
     # Read hook input from stdin
     try:
         hook_input = json.load(sys.stdin)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}", exc_info=True)
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Unexpected error reading input: {e}", exc_info=True)
         sys.exit(0)
 
     # Find current session
-    session_info = find_current_session()
-    if not session_info:
+    try:
+        session_info = find_current_session()
+        if not session_info:
+            logger.debug("No current session found, exiting")
+            sys.exit(0)
+    except Exception as e:
+        logger.error(f"Error finding current session: {e}", exc_info=True)
         sys.exit(0)
 
     session_id = session_info["session_id"]
+    logger.debug(f"Processing session: {session_id}")
 
     # Ensure session directory exists
     session_dir = ensure_dirs(session_id)
 
     # Load existing index
     existing_index = load_segment_index(session_dir)
+    existing_segments = len(existing_index.get("segments", []))
+    logger.debug(f"Loaded existing index with {existing_segments} segments")
 
     # Index new content
-    updated_index = index_session(session_info, existing_index)
+    try:
+        updated_index = index_session(session_info, existing_index)
+        new_segments = len(updated_index.get("segments", []))
+        logger.debug(f"Updated index has {new_segments} segments")
+    except Exception as e:
+        logger.error(f"Error indexing session: {e}", exc_info=True)
+        sys.exit(0)
 
     # Save updated index
-    save_segment_index(session_dir, updated_index)
+    try:
+        save_segment_index(session_dir, updated_index)
+        if new_segments > existing_segments:
+            logger.info(f"Added {new_segments - existing_segments} new segments")
+    except Exception as e:
+        logger.error(f"Error saving segment index: {e}", exc_info=True)
 
+    logger.info("Hook completed successfully")
     sys.exit(0)
 
 

@@ -13,6 +13,12 @@ import sys
 import os
 import re
 
+# Add hooks directory to path for shared modules
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from hook_logger import HookLogger
+
+logger = HookLogger("detect-learning")
+
 # How many recent messages to analyze
 MAX_MESSAGES_TO_ANALYZE = 30
 
@@ -141,27 +147,40 @@ def should_trigger_learning_moment(messages):
     return False, None
 
 def main():
+    logger.info("Hook started")
+
     # Read hook input from stdin
     try:
         hook_input = json.load(sys.stdin)
-    except json.JSONDecodeError:
+        logger.debug(f"Got transcript_path: {hook_input.get('transcript_path', 'none')}")
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}", exc_info=True)
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Unexpected error reading input: {e}", exc_info=True)
         sys.exit(0)
 
     # Get transcript path
     transcript_path = hook_input.get("transcript_path", "")
     if not transcript_path or not os.path.exists(transcript_path):
+        logger.debug("No valid transcript path, exiting")
         sys.exit(0)
 
     # Load and analyze transcript
     messages = load_transcript(transcript_path)
+    logger.debug(f"Loaded {len(messages)} messages from transcript")
+
     if len(messages) < 5:
         # Not enough conversation to analyze
+        logger.debug("Not enough messages to analyze, exiting")
         sys.exit(0)
 
     # Check for learning moment
     is_learning_moment, reason = should_trigger_learning_moment(messages)
+    logger.debug(f"Learning moment check: {is_learning_moment}, reason: {reason}")
 
     if is_learning_moment:
+        logger.info(f"Learning moment detected: {reason}")
         # For Stop hooks, use systemMessage (not additionalContext)
         output = {
             "continue": True,  # Don't block, just add a message
@@ -176,6 +195,7 @@ This helps avoid re-discovering the same solution later."""
         }
         print(json.dumps(output))
 
+    logger.info("Hook completed successfully")
     sys.exit(0)
 
 if __name__ == "__main__":

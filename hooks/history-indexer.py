@@ -15,6 +15,12 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+# Add hooks directory to path for shared modules
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from hook_logger import HookLogger
+
+logger = HookLogger("history-indexer")
+
 # Index location
 HISTORY_DIR = os.path.expanduser("~/.claude/history")
 INDEX_PATH = os.path.join(HISTORY_DIR, "index.json")
@@ -224,18 +230,30 @@ def build_topic_index(sessions_dict):
 
 
 def main():
+    logger.info("Hook started")
+
     # Read hook input from stdin
     try:
         hook_input = json.load(sys.stdin)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}", exc_info=True)
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Unexpected error reading input: {e}", exc_info=True)
         sys.exit(0)
 
     # Load existing index
-    index = load_index()
-    existing_sessions = set(index.get("sessions", {}).keys())
+    try:
+        index = load_index()
+        existing_sessions = set(index.get("sessions", {}).keys())
+        logger.debug(f"Loaded index with {len(existing_sessions)} existing sessions")
+    except Exception as e:
+        logger.error(f"Error loading index: {e}", exc_info=True)
+        sys.exit(0)
 
     # Find all session files
     session_files = find_session_files()
+    logger.debug(f"Found {len(session_files)} session files")
 
     # Index new or updated sessions
     new_sessions = 0
@@ -263,7 +281,11 @@ def main():
     if new_sessions > 0:
         index["topics"] = build_topic_index(index["sessions"])
         save_index(index)
+        logger.info(f"Indexed {new_sessions} new sessions")
+    else:
+        logger.debug("No new sessions to index")
 
+    logger.info("Hook completed successfully")
     sys.exit(0)
 
 
