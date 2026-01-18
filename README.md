@@ -53,18 +53,19 @@ The installer offers:
 
 ## The Hooks System
 
-All automation is powered by **8 Python hooks** in `~/.claude/hooks/`:
+All automation is powered by **9 Python hooks** in `~/.claude/hooks/`:
 
 ```
 ~/.claude/hooks/
-├── skill-matcher.py        # Every message: suggests matching skills
-├── large-input-detector.py # Every message: detects large inputs
-├── history-search.py       # Every message: suggests relevant past work
-├── skill-tracker.py        # After Read: tracks skill usage
-├── detect-learning.py      # Before stop: detects learning moments
-├── history-indexer.py      # Before stop: indexes conversation history
-├── live-session-indexer.py # Before stop: chunks session into segments
-└── session-recovery.py     # After compact: RLM-based intelligent recovery
+├── skill-matcher.py          # Every message: suggests matching skills
+├── large-input-detector.py   # Every message: detects large inputs
+├── history-search.py         # Every message: suggests relevant past work
+├── learning-moment-pickup.py # Every message: picks up pending learning moments
+├── skill-tracker.py          # After Read: tracks skill usage
+├── detect-learning.py        # Before stop: detects learning moments, saves to file
+├── history-indexer.py        # Before stop: indexes conversation history
+├── live-session-indexer.py   # Before stop: chunks session into segments
+└── session-recovery.py       # After compact: RLM-based intelligent recovery
 ```
 
 ### Hook Events
@@ -74,8 +75,9 @@ All automation is powered by **8 Python hooks** in `~/.claude/hooks/`:
 | `UserPromptSubmit` | Every message | `skill-matcher.py` | Match skills, suggest if score ≥10 |
 | `UserPromptSubmit` | Every message | `large-input-detector.py` | Detect >50K chars, suggest RLM |
 | `UserPromptSubmit` | Every message | `history-search.py` | Suggest relevant past sessions |
+| `UserPromptSubmit` | Every message | `learning-moment-pickup.py` | Pick up pending learning moments |
 | `PostToolUse` | After Read | `skill-tracker.py` | Track SKILL.md reads |
-| `Stop` | Before finish | `detect-learning.py` | Detect 3+ failures, offer skill creation |
+| `Stop` | Before finish | `detect-learning.py` | Detect 3+ failures, save for pickup |
 | `Stop` | Before finish | `history-indexer.py` | Update searchable history index |
 | `Stop` | Before finish | `live-session-indexer.py` | Chunk conversation into segments |
 | `SessionStart` | After /compact | `session-recovery.py` | RLM-based intelligent context recovery |
@@ -182,7 +184,7 @@ PERSISTANT MEMORY/
 └── requirements.txt
 
 ~/.claude/                 # User-level Claude Code config
-├── settings.json          # Hook configuration (8 hooks)
+├── settings.json          # Hook configuration (9 hooks)
 ├── hooks/                 # The 8 automation hooks + shared utilities
 │   ├── hook_logger.py     # Shared logging utility
 │   ├── skill-matcher.py
@@ -218,7 +220,7 @@ chmod +x enhanced-claude-install.sh
 | Option | Installs |
 |--------|----------|
 | **Full install** | Global (hooks, skills, settings) + Project (persistence files, RLM tools) |
-| **Global only** | 9 hooks, 17 skills, settings.json in `~/.claude/` |
+| **Global only** | 10 hooks, 17 skills, settings.json in `~/.claude/` |
 | **Project only** | context.md, todos.md, insights.md, rlm_tools/ in current directory |
 
 ### CLI Flags
