@@ -146,6 +146,58 @@ python rlm_tools/chunk.py codebase.py --strategy code --size 200000
 
 This keeps related code together (a class with its methods) and produces more meaningful chunks than arbitrary character splits.
 
+## Parallel Processing (NEW)
+
+For maximum speed, use the parallel processor to spawn multiple subagents simultaneously:
+
+```bash
+# Generate parallel batch configuration
+python rlm_tools/parallel_process.py rlm_context/chunks/manifest.json \
+  --query "Find security vulnerabilities" \
+  --batch-size 4 \
+  --save-prompts
+```
+
+This creates:
+- `parallel_config.json` - Full configuration
+- `batch_NNN_prompt.txt` - Individual prompts for each batch
+
+### How Parallel Processing Works
+
+```
+Sequential (slow):          Parallel (fast):
+
+Batch 1 → Batch 2 → ...    Batch 1 ─┐
+         ↓                 Batch 2 ─┼→ All complete
+      ~N minutes           Batch 3 ─┤   together
+                           Batch 4 ─┘
+                              ↓
+                           ~1 minute
+```
+
+### Speedup
+
+| Chunks | Batches | Sequential | Parallel | Speedup |
+|--------|---------|------------|----------|---------|
+| 8 | 2 | ~4 min | ~2 min | 2x |
+| 20 | 5 | ~10 min | ~2 min | 5x |
+| 40 | 10 | ~20 min | ~2 min | 10x |
+
+### Usage Pattern
+
+Claude should spawn ALL batches in a single message:
+
+```
+# In ONE response, call Task multiple times:
+Task(batch 1) + Task(batch 2) + Task(batch 3) + Task(batch 4)
+         ↓           ↓           ↓           ↓
+    [All run simultaneously, results collected together]
+```
+
+The key is including all Task invocations in ONE response rather than waiting for each to complete.
+
+---
+
 ## Example: Codebase Security Audit
 
 ```bash

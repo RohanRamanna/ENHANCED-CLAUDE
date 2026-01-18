@@ -12,7 +12,6 @@
 
 ## Pending
 
-- [ ] Consider async subagent processing for faster results
 - [ ] Test Go and Rust codebases (Python, JS, TS verified)
 
 ## Completed (This Session)
@@ -26,6 +25,9 @@
 - [x] Test on TypeScript codebase - interfaces, types, classes detected
 - [x] Test on JavaScript codebase - classes, arrow functions detected
 - [x] Update skill-index with new RLM skill (17 skills total)
+- [x] Add parallel processing (`rlm_tools/parallel_process.py`)
+- [x] Generate batch prompts for simultaneous Task spawning
+- [x] Document parallel speedup (up to 10x faster)
 
 ## Completed (This Session)
 
