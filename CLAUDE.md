@@ -53,6 +53,7 @@ All automation is powered by **8 Python hooks** in `~/.claude/hooks/`:
 
 ```
 ~/.claude/hooks/
+├── hook_logger.py          # Shared logging utility for all hooks
 ├── skill-matcher.py        # UserPromptSubmit: suggests matching skills
 ├── large-input-detector.py # UserPromptSubmit: detects large inputs
 ├── history-search.py       # UserPromptSubmit: suggests relevant history
@@ -251,8 +252,9 @@ Contains segment index with pointers to JSONL content (zero data duplication).
 | Tool | Purpose |
 |------|---------|
 | `rlm_tools/probe.py` | Analyze input structure and size |
-| `rlm_tools/chunk.py` | Split large files into processable pieces |
+| `rlm_tools/chunk.py` | Split large files (supports `--strategy code` for semantic chunking, `--progress` for ETA) |
 | `rlm_tools/aggregate.py` | Combine chunk results into final answer |
+| `rlm_tools/parallel_process.py` | Coordinate parallel chunk processing (up to 10x speedup) |
 | `rlm_tools/sandbox.py` | Safe Python code execution |
 
 ---
@@ -381,14 +383,14 @@ When you ask about something you've worked on before:
 
 **Purpose**: Reusable patterns, workflows, and specialized capabilities.
 
-### Available Skills (16)
+### Available Skills (17)
 
 | Category | Skills |
 |----------|--------|
 | **Meta** (9) | skill-index, skill-matcher, skill-loader, skill-tracker, skill-creator, skill-updater, skill-improver, skill-validator, skill-health |
 | **Setup** (2) | deno2-http-kv-server, hono-bun-sqlite-api |
 | **API** (1) | llm-api-tool-use |
-| **Utility** (2) | markdown-to-pdf, history |
+| **Utility** (3) | markdown-to-pdf, history, rlm |
 | **Workflow** (1) | udcp |
 | **Fallback** (1) | web-research |
 
@@ -409,12 +411,13 @@ PERSISTANT MEMORY/
 ├── todos.md                  # Session persistence: task tracking
 ├── insights.md               # Session persistence: accumulated learnings
 ├── RESUME.md                 # Recovery instructions (legacy)
-├── skills/                   # Skills library (15 skills)
+├── skills/                   # Skills library (17 skills)
 │   └── */SKILL.md            # Individual skill files
 ├── rlm_tools/                # RLM processing tools
 │   ├── probe.py              # Analyze input structure
-│   ├── chunk.py              # Split large files
+│   ├── chunk.py              # Split large files (semantic code chunking, progress tracking)
 │   ├── aggregate.py          # Combine results
+│   ├── parallel_process.py   # Coordinate parallel processing
 │   └── sandbox.py            # Safe code execution
 ├── rlm_context/              # RLM working directory
 ├── docs/

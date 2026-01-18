@@ -31,6 +31,33 @@ print(json.dumps(output))
 sys.exit(0)
 ```
 
+### Stop Hook Schema Difference
+
+**Important**: Stop hooks use a DIFFERENT output schema than other hooks:
+- **UserPromptSubmit**: `hookSpecificOutput.additionalContext`
+- **Stop**: `systemMessage` (NOT `hookSpecificOutput`)
+
+```python
+# Wrong for Stop hooks:
+output = {"hookSpecificOutput": {"additionalContext": "..."}}
+
+# Correct for Stop hooks:
+output = {"continue": True, "systemMessage": "..."}
+```
+
+### Hook Logging Pattern
+
+All hooks now use a shared logging utility (`hook_logger.py`) for consistent debugging:
+```python
+from hook_logger import HookLogger
+logger = HookLogger("hook-name")
+logger.info("Hook started")
+logger.debug("Processing details")
+logger.error("Something went wrong", exc_info=True)
+```
+
+Logs are stored in `~/.claude/logs/hooks/{hook-name}.log` with automatic 5MB rotation.
+
 ### User vs Project Settings
 
 - **Project settings** (`.claude/settings.json`): Per-project hooks
@@ -77,6 +104,14 @@ Only trigger skill creation offers when:
 
 This prevents false positives and annoying prompts.
 
+### Parallel Subagent Batching
+
+- 4 chunks per subagent works well
+- 3-6 parallel subagents is efficient
+- More subagents = faster but higher cost
+- Use `rlm_tools/parallel_process.py` to generate batch configurations
+- Spawn ALL batches in a single response for true parallelism (up to 10x speedup)
+
 ## Gotchas & Pitfalls
 
 ### Hook Debugging
@@ -88,7 +123,10 @@ This prevents false positives and annoying prompts.
 
 ### Project Directory Detection
 
-Hooks use `os.getcwd()` to detect the project directory. If you run Claude Code from a different directory, ensure you're in the project root. Alternatively, set `CLAUDE_PROJECT_DIR` environment variable.
+Hooks use dynamic project detection:
+- Uses `CLAUDE_PROJECT_DIR` environment variable if set
+- Falls back to `os.getcwd()` (current working directory)
+- No hardcoded paths needed
 
 ### Skills Location
 
@@ -107,7 +145,9 @@ Skills are in `~/.claude/skills/` (global), not project-specific. This means:
 ```
 ~/.claude/
 ├── settings.json           # Hook configuration (8 hooks)
+├── logs/hooks/             # Hook debug logs (auto-rotated)
 ├── hooks/
+│   ├── hook_logger.py      # Shared logging utility
 │   ├── skill-matcher.py    # UserPromptSubmit: match skills
 │   ├── large-input-detector.py  # UserPromptSubmit: detect large inputs
 │   ├── history-search.py   # UserPromptSubmit: suggest past sessions
