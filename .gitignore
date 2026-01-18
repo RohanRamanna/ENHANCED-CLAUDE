@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+
+# RLM working files (generated during processing)
+rlm_context/input.txt
+rlm_context/chunks/*.txt
+rlm_context/results/*.txt
+rlm_context/aggregated_results.txt
+!rlm_context/.gitkeep
+!rlm_context/chunks/.gitkeep
+!rlm_context/results/.gitkeep
+
+# Keep manifest for reference
+!rlm_context/chunks/manifest.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log

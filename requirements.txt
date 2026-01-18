@@ -1,0 +1,4 @@
+# RLM Tools Dependencies
+
+# Optional: Enhanced sandbox security (falls back to basic restricted exec if not installed)
+RestrictedPython>=6.0
