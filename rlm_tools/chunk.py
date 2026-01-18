@@ -234,19 +234,21 @@ def detect_language(text: str) -> str:
         if re.search(r':\s*$', text, re.MULTILINE):  # Python uses colons
             return "python"
 
-    # JavaScript/TypeScript patterns
-    if re.search(r'(function\s+\w+|const\s+\w+\s*=|let\s+\w+\s*=|var\s+\w+\s*=|\=\>\s*\{)', text):
-        if re.search(r'(interface\s+\w+|type\s+\w+\s*=|:\s*(string|number|boolean|any))', text):
-            return "typescript"
-        return "javascript"
+    # Rust patterns (check before JS due to overlap with 'fn', 'struct')
+    # Look for Rust-specific syntax: use statements, lifetimes, Result/Option, &self
+    if re.search(r'(use\s+std::|use\s+\w+::|::<|->|&self|&mut\s+self|impl\s+\w+|Result<|Option<|pub\s+fn|pub\s+struct|pub\s+enum)', text):
+        if re.search(r'^(pub\s+)?(fn|struct|enum|impl|trait|mod)\s+\w+', text, re.MULTILINE):
+            return "rust"
 
     # Go patterns
     if re.search(r'^(func\s+\w+|package\s+\w+|type\s+\w+\s+struct)', text, re.MULTILINE):
         return "go"
 
-    # Rust patterns
-    if re.search(r'^(fn\s+\w+|impl\s+\w+|struct\s+\w+|enum\s+\w+|mod\s+\w+)', text, re.MULTILINE):
-        return "rust"
+    # JavaScript/TypeScript patterns
+    if re.search(r'(function\s+\w+|const\s+\w+\s*=|let\s+\w+\s*=|var\s+\w+\s*=|\=\>\s*\{)', text):
+        if re.search(r'(interface\s+\w+|type\s+\w+\s*=|:\s*(string|number|boolean|any))', text):
+            return "typescript"
+        return "javascript"
 
     # Java/Kotlin patterns
     if re.search(r'(public\s+class|private\s+class|class\s+\w+\s*\{)', text):
