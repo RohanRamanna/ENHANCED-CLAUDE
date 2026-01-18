@@ -21,12 +21,17 @@ This repository transforms Claude Code into **Enhanced Claude** - a self-improvi
 ## Quick Start
 
 ```bash
-# 1. Hooks are already in ~/.claude/hooks/
-# 2. Just use Claude Code normally
-# 3. All 5 systems work automatically
+# Download and run the installer
+curl -O https://raw.githubusercontent.com/RohanRamanna/ENHANCED-CLAUDE/main/enhanced-claude-install.sh
+chmod +x enhanced-claude-install.sh
+./enhanced-claude-install.sh
 ```
 
-That's it. No manual setup needed.
+The installer offers:
+1. **Full install** - Global hooks/skills + project setup
+2. **Global only** - Just hooks and skills (works for all projects)
+3. **Project only** - Just persistence files and RLM tools
+4. **Check status** - Verify installation
 
 ---
 
@@ -197,24 +202,35 @@ PERSISTANT MEMORY/
 
 ---
 
-## Installation (If Starting Fresh)
+## Installation
+
+### One-Command Install (Recommended)
 
 ```bash
-# 1. Create directories
-mkdir -p ~/.claude/hooks
-mkdir -p ~/.claude/sessions
-mkdir -p ~/.claude/history
-
-# 2. Copy hook scripts (8 hooks)
-cp hooks/*.py ~/.claude/hooks/
-chmod +x ~/.claude/hooks/*.py
-
-# 3. Copy settings.json (or merge with existing)
-cp .claude/settings.json ~/.claude/settings.json
-
-# 4. Reload hooks
-# In Claude Code, run: /hooks
+# Download and run the standalone installer
+curl -O https://raw.githubusercontent.com/RohanRamanna/ENHANCED-CLAUDE/main/enhanced-claude-install.sh
+chmod +x enhanced-claude-install.sh
+./enhanced-claude-install.sh
 ```
+
+### What the Installer Does
+
+| Option | Installs |
+|--------|----------|
+| **Full install** | Global (hooks, skills, settings) + Project (persistence files, RLM tools) |
+| **Global only** | 9 hooks, 17 skills, settings.json in `~/.claude/` |
+| **Project only** | context.md, todos.md, insights.md, rlm_tools/ in current directory |
+
+### CLI Flags
+
+```bash
+./enhanced-claude-install.sh --global    # Non-interactive global install
+./enhanced-claude-install.sh --project   # Non-interactive project install
+./enhanced-claude-install.sh --check     # Verify installation status
+./enhanced-claude-install.sh --help      # Show help
+```
+
+After installation, reload hooks in Claude Code with `/hooks`.
 
 ---
 
