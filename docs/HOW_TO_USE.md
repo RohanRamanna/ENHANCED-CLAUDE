@@ -1,6 +1,6 @@
 # How to Use Enhanced Claude
 
-This repository provides **four integrated systems** for Claude Code, all powered by **automatic hooks**. Just start Claude Code in this directory and everything works automatically.
+This repository provides **five integrated systems** for Claude Code, all powered by **automatic hooks**. Just start Claude Code in this directory and everything works automatically.
 
 ---
 
@@ -8,15 +8,16 @@ This repository provides **four integrated systems** for Claude Code, all powere
 
 1. [Quick Start](#quick-start) - Get running in 30 seconds
 2. [The Hooks System](#the-hooks-system) - How automation works
-3. [System 1: Session Persistence](#system-1-session-persistence) - Memory across context compaction
+3. [System 1: Session Persistence](#system-1-session-persistence) - RLM-based memory across context compaction
 4. [System 2: RLM for Large Documents](#system-2-rlm-for-large-documents) - Processing oversized inputs
 5. [System 3: Auto-Skills](#system-3-auto-skills) - Self-improving skill system
-6. [System 4: Skills Library](#system-4-skills-library) - On-demand skill loading
-7. [Installation](#installation)
-8. [RLM Detailed Workflow](#rlm-detailed-workflow)
-9. [Tool Reference](#tool-reference)
-10. [Examples](#examples)
-11. [Troubleshooting](#troubleshooting)
+6. [System 4: Searchable History](#system-4-searchable-history) - Find past solutions without filling context
+7. [System 5: Skills Library](#system-5-skills-library) - On-demand skill loading
+8. [Installation](#installation)
+9. [RLM Detailed Workflow](#rlm-detailed-workflow)
+10. [Tool Reference](#tool-reference)
+11. [Examples](#examples)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -34,13 +35,16 @@ chmod +x ~/.claude/hooks/*.py
 
 ### Step 2: Just Use Claude Code
 
-That's it! All 4 systems work automatically:
+That's it! All 5 systems work automatically:
 
 | What Happens | Automatic Behavior |
 |--------------|-------------------|
 | You send a message | Skills are matched and suggested |
+| You send a message | Relevant past work is suggested |
 | You paste large text (>50K chars) | RLM workflow is suggested |
-| Context compacts | Persistence files are auto-loaded |
+| Context compacts | Persistence files + relevant segments auto-loaded (RLM-based) |
+| Claude finishes responding | Live session is chunked into segments |
+| Claude finishes responding | History index is updated |
 | You solve via trial-and-error | Skill creation is offered |
 | You read a SKILL.md | Usage is tracked |
 
@@ -50,15 +54,18 @@ That's it! All 4 systems work automatically:
 
 ## The Hooks System
 
-Enhanced Claude is powered by **5 Python hooks** that run automatically:
+Enhanced Claude is powered by **8 Python hooks** that run automatically:
 
 ```
 ~/.claude/hooks/
 ├── skill-matcher.py        # Suggests matching skills (UserPromptSubmit)
 ├── large-input-detector.py # Detects large inputs, suggests RLM (UserPromptSubmit)
+├── history-search.py       # Suggests relevant past sessions (UserPromptSubmit)
 ├── skill-tracker.py        # Tracks skill usage (PostToolUse)
 ├── detect-learning.py      # Detects trial-and-error moments (Stop)
-└── session-recovery.py     # Loads persistence files (SessionStart)
+├── history-indexer.py      # Indexes conversation history (Stop)
+├── live-session-indexer.py # Chunks live session into segments (Stop)
+└── session-recovery.py     # RLM-based intelligent recovery (SessionStart)
 ```
 
 ### Hook Configuration
@@ -72,7 +79,8 @@ All hooks are configured in `~/.claude/settings.json`:
       {
         "hooks": [
           {"type": "command", "command": "python3 ~/.claude/hooks/skill-matcher.py"},
-          {"type": "command", "command": "python3 ~/.claude/hooks/large-input-detector.py"}
+          {"type": "command", "command": "python3 ~/.claude/hooks/large-input-detector.py"},
+          {"type": "command", "command": "python3 ~/.claude/hooks/history-search.py"}
         ]
       }
     ],
@@ -87,7 +95,9 @@ All hooks are configured in `~/.claude/settings.json`:
     "Stop": [
       {
         "hooks": [
-          {"type": "command", "command": "python3 ~/.claude/hooks/detect-learning.py"}
+          {"type": "command", "command": "python3 ~/.claude/hooks/detect-learning.py"},
+          {"type": "command", "command": "python3 ~/.claude/hooks/history-indexer.py"},
+          {"type": "command", "command": "python3 ~/.claude/hooks/live-session-indexer.py"}
         ]
       }
     ],
@@ -115,42 +125,61 @@ All hooks are configured in `~/.claude/settings.json`:
 |-------|--------------|------|--------|
 | `UserPromptSubmit` | Every user message | `skill-matcher.py` | Scores and suggests matching skills |
 | `UserPromptSubmit` | Every user message | `large-input-detector.py` | Detects large inputs, suggests RLM |
+| `UserPromptSubmit` | Every user message | `history-search.py` | Suggests relevant past sessions |
 | `PostToolUse` | After Read tool | `skill-tracker.py` | Updates skill metadata on SKILL.md reads |
 | `Stop` | Before Claude finishes | `detect-learning.py` | Detects trial-and-error, offers skill creation |
-| `SessionStart` | After /compact or /resume | `session-recovery.py` | Injects persistence files into context |
+| `Stop` | Before Claude finishes | `history-indexer.py` | Updates searchable history index |
+| `Stop` | Before Claude finishes | `live-session-indexer.py` | Chunks conversation into segments |
+| `SessionStart` | After /compact or /resume | `session-recovery.py` | RLM-based intelligent context recovery |
 
 ---
 
-## System 1: Session Persistence
+## System 1: Session Persistence (RLM-Based)
 
-**Problem**: When Claude's context window fills up, it compacts and loses memory.
+**Problem**: When Claude's context window fills up, it compacts and loses memory. Manual summaries miss details.
 
-**Solution**: Three markdown files + automatic hook that loads them after compaction.
+**Solution**: Two hooks work together for intelligent, zero-loss recovery:
+1. **live-session-indexer.py** (Stop) - Chunks the live session into semantic segments
+2. **session-recovery.py** (SessionStart) - Intelligently loads most relevant segments after compaction
 
-### How It Works (Automatic)
+### How It Works (Fully Automatic)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                  SESSION PERSISTENCE (AUTOMATIC)                 │
+│         RLM-BASED SESSION PERSISTENCE (FULLY AUTOMATIC)          │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  CONTEXT COMPACTS                                               │
+│  DURING CONVERSATION (Stop hook after each turn):               │
+│  live-session-indexer.py chunks conversation into segments:     │
+│    • Segment boundaries: task completion, topic change, time    │
+│    • Each segment: topics, files, tools, decisions, summary     │
 │       ↓                                                         │
-│  SessionStart hook fires (matcher: "compact")                   │
-│       ↓                                                         │
-│  session-recovery.py runs automatically                         │
-│       ↓                                                         │
-│  Reads and INJECTS into Claude's context:                       │
-│    • context.md  → Current goal & decisions                     │
-│    • todos.md    → Task progress                                │
-│    • insights.md → Accumulated learnings                        │
-│       ↓                                                         │
-│  Claude continues with full context restored                    │
+│  ~/.claude/sessions/<session-id>/segments.json                  │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  AFTER COMPACTION (SessionStart hook):                          │
+│  session-recovery.py intelligently loads context:               │
+│    1. Load persistence files (context.md, todos.md, insights.md)│
+│    2. Load segment index for current session                    │
+│    3. Score segments: recency + task relevance + active work    │
+│    4. Extract ACTUAL content from JSONL for top segments        │
+│    5. Inject relevant context (~2000 tokens of conversation)    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### The Three Persistence Files
+### Segment Scoring Algorithm
+
+| Factor | Points | Description |
+|--------|--------|-------------|
+| Recency | 0-50 | Newer segments score higher (5 pts lost per hour) |
+| Task match | 10/topic | Segments related to pending todos |
+| Active work | +15 | Segments with Edit/Write tool usage |
+| Decisions | +10 | Segments containing key decisions |
+| Task completed | +10 | Segments ending with completed tasks |
+
+### The Three Persistence Files (Still Updated)
 
 | File | Purpose | When to Update |
 |------|---------|----------------|
@@ -160,12 +189,12 @@ All hooks are configured in `~/.claude/settings.json`:
 
 ### What You See After Compaction
 
-After `/compact` or automatic compaction, Claude automatically receives:
+After `/compact` or automatic compaction, Claude receives:
 
 ```
-============================================================
-SESSION RECOVERED - Persistence files loaded automatically
-============================================================
+======================================================================
+SESSION RECOVERED - RLM-based intelligent context loading
+======================================================================
 
 ### Current Goal & Decisions (context.md)
 [Full contents of context.md]
@@ -176,12 +205,28 @@ SESSION RECOVERED - Persistence files loaded automatically
 ### Accumulated Learnings (insights.md)
 [Full contents of insights.md]
 
-============================================================
-Continue where you left off. Update these files as you work.
-============================================================
+======================================================================
+RELEVANT CONVERSATION CONTEXT (RLM-recovered)
+======================================================================
+
+--- Segment seg-002 (score: 61) ---
+Topics: context, session, hooks, persistence
+Summary: Topics: context, session | Files: 7 | Tools: TodoWrite, Write, Edit
+
+Conversation excerpt:
+USER: work on the priority pending item
+ASSISTANT: I'll work on RLM-based live session persistence...
+[Modified: live-session-indexer.py]
+[Completed: Create live-session-indexer.py hook]
+
+[Loaded 3 relevant segments from session history]
+
+======================================================================
+Continue where you left off. Context has been intelligently restored.
+======================================================================
 ```
 
-**No manual intervention needed** - Claude just continues where it left off.
+**Zero data loss** - Claude sees actual conversation excerpts, not just summaries.
 
 ---
 
@@ -314,11 +359,66 @@ This helps avoid re-discovering the same solution later.
 
 ---
 
-## System 4: Skills Library
+## System 4: Searchable History
+
+**Problem**: Past solutions are lost when you need them. Searching means loading entire conversations into context.
+
+**Solution**: Smart index points to WHERE information is, without loading it. Only retrieve what's needed.
+
+### How It Works (Fully Automatic)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              SEARCHABLE HISTORY (FULLY AUTOMATIC)                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  EXISTING DATA (already stored by Claude Code)                  │
+│  ~/.claude/projects/*/*.jsonl  → Full session transcripts       │
+│       ↓                                                         │
+│  history-indexer.py (Stop hook)                                 │
+│  Extracts: topics, files, tools → Builds index                  │
+│       ↓                                                         │
+│  ~/.claude/history/index.json  → Searchable index               │
+│       ↓                                                         │
+│  history-search.py (UserPromptSubmit hook)                      │
+│  Matches query → Suggests relevant past sessions                │
+│       ↓                                                         │
+│  /history load <session>  → Retrieve only what's needed         │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Core Principle
+
+**Zero data duplication**: The index only contains pointers (session ID, line ranges, topics), not content. Full history already exists in JSONL files.
+
+### What You See
+
+When you ask about something you've worked on before:
+```
+[HISTORY MATCH] Found relevant past work in this project:
+  - 2026-01-15: hooks, automation (score:14, 1440 lines)
+    Load: /history load 23a35a50
+```
+
+### History Commands
+
+| Command | Description |
+|---------|-------------|
+| `/history search <query>` | Search current project |
+| `/history search --all <query>` | Search all projects |
+| `/history load <session_id>` | Load session content |
+| `/history topics` | List indexed topics |
+| `/history recent` | Show recent sessions |
+| `/history rebuild` | Force reindex |
+
+---
+
+## System 5: Skills Library
 
 **Problem**: Useful patterns and workflows are forgotten between sessions.
 
-**Solution**: 15 reusable skills loaded on-demand.
+**Solution**: 16 reusable skills loaded on-demand.
 
 ### Available Skills
 
@@ -327,7 +427,7 @@ This helps avoid re-discovering the same solution later.
 | **Meta** (9) | skill-index, skill-matcher, skill-loader, skill-tracker, skill-creator, skill-updater, skill-improver, skill-validator, skill-health |
 | **Setup** (2) | deno2-http-kv-server, hono-bun-sqlite-api |
 | **API** (1) | llm-api-tool-use |
-| **Utility** (1) | markdown-to-pdf |
+| **Utility** (2) | markdown-to-pdf, history |
 | **Workflow** (1) | udcp |
 | **Fallback** (1) | web-research |
 
@@ -470,9 +570,12 @@ Read the aggregated results or ask Claude to summarize them.
 |------|-------|---------|
 | `skill-matcher.py` | UserPromptSubmit | Match skills to user prompts |
 | `large-input-detector.py` | UserPromptSubmit | Detect large inputs, suggest RLM |
+| `history-search.py` | UserPromptSubmit | Suggest relevant past sessions |
 | `skill-tracker.py` | PostToolUse (Read) | Track SKILL.md reads |
 | `detect-learning.py` | Stop | Detect trial-and-error moments |
-| `session-recovery.py` | SessionStart | Load persistence files |
+| `history-indexer.py` | Stop | Index conversation history |
+| `live-session-indexer.py` | Stop | Chunk live session into segments |
+| `session-recovery.py` | SessionStart | RLM-based intelligent recovery |
 
 ### RLM Tools
 
@@ -532,14 +635,16 @@ Read the aggregated results or ask Claude to summarize them.
 2. Claude sees: `[LARGE INPUT DETECTED - RLM RECOMMENDED]` with full workflow
 3. Claude guides you through the RLM process
 
-### Example 3: Context Compaction Recovery
+### Example 3: Context Compaction Recovery (RLM-Based)
 
 **Context compacts** during a long session
 
 **What happens automatically**:
-1. `session-recovery.py` runs
-2. Claude receives full contents of context.md, todos.md, insights.md
-3. Claude continues exactly where it left off
+1. `live-session-indexer.py` has been chunking conversation into segments during the session
+2. `session-recovery.py` runs after compaction
+3. Claude receives full contents of context.md, todos.md, insights.md
+4. Claude also receives **actual conversation excerpts** from the most relevant segments
+5. Claude continues with both high-level context AND specific conversation details
 
 ### Example 4: Learning Moment
 
@@ -592,8 +697,11 @@ The threshold is 50K characters. For smaller inputs, RLM isn't needed.
 | Skill matching | ✅ | skill-matcher.py |
 | Skill usage tracking | ✅ | skill-tracker.py |
 | Learning detection | ✅ | detect-learning.py |
-| Session recovery | ✅ | session-recovery.py |
+| Session recovery (RLM-based) | ✅ | session-recovery.py |
+| Live session chunking | ✅ | live-session-indexer.py |
 | Large input detection | ✅ | large-input-detector.py |
+| History indexing | ✅ | history-indexer.py |
+| History search suggestions | ✅ | history-search.py |
 | Skills library | Manual | /skill-name |
 | RLM processing | Guided | (suggested by hook) |
 

@@ -3,54 +3,63 @@
 **Self-Improving AI with Infinite Context and Auto-Learning Skills - Powered by Automatic Hooks**
 
 [![Status](https://img.shields.io/badge/status-fully_automatic-brightgreen)]()
+[![Systems](https://img.shields.io/badge/systems-5-blue)]()
+[![Hooks](https://img.shields.io/badge/hooks-8-purple)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 
 ## Overview
 
 This repository transforms Claude Code into **Enhanced Claude** - a self-improving AI that:
 
-1. **Never forgets** - Session persistence automatically loaded after compaction
+1. **Never forgets** - RLM-based session persistence with intelligent segment recovery
 2. **No limits** - Large inputs automatically detected, RLM workflow suggested
 3. **Self-improves** - Skills automatically matched, tracked, and learning moments detected
+4. **Searchable history** - Find past solutions without filling context
 
-**Everything is automatic via Claude Code hooks.**
+**Everything is automatic via 8 Claude Code hooks.**
 
 ## Quick Start
 
 ```bash
 # 1. Hooks are already in ~/.claude/hooks/
 # 2. Just use Claude Code normally
-# 3. All 4 systems work automatically
+# 3. All 5 systems work automatically
 ```
 
 That's it. No manual setup needed.
 
 ---
 
-## The Four Systems (All Automatic)
+## The Five Systems (All Automatic)
 
 | System | Hook | What It Does |
 |--------|------|-------------|
-| **Session Persistence** | `session-recovery.py` | Auto-loads context.md, todos.md, insights.md after compaction |
+| **Session Persistence** | `live-session-indexer.py` | Chunks live conversation into semantic segments |
+| | `session-recovery.py` | RLM-based intelligent recovery with segment scoring |
 | **RLM Detection** | `large-input-detector.py` | Auto-detects large inputs (>50K chars), suggests RLM workflow |
 | **Auto-Skills** | `skill-matcher.py` | Auto-matches skills to every user message |
 | | `skill-tracker.py` | Auto-tracks usage when SKILL.md files are read |
 | | `detect-learning.py` | Auto-detects trial-and-error, offers skill creation |
-| **Skills Library** | Manual | 15 skills invoked via `/skill-name` |
+| **Searchable History** | `history-indexer.py` | Indexes conversations on session end |
+| | `history-search.py` | Suggests relevant past sessions |
+| **Skills Library** | Manual | 16 skills invoked via `/skill-name` |
 
 ---
 
 ## The Hooks System
 
-All automation is powered by **5 Python hooks** in `~/.claude/hooks/`:
+All automation is powered by **8 Python hooks** in `~/.claude/hooks/`:
 
 ```
 ~/.claude/hooks/
 ├── skill-matcher.py        # Every message: suggests matching skills
 ├── large-input-detector.py # Every message: detects large inputs
+├── history-search.py       # Every message: suggests relevant past work
 ├── skill-tracker.py        # After Read: tracks skill usage
 ├── detect-learning.py      # Before stop: detects learning moments
-└── session-recovery.py     # After compact: loads persistence files
+├── history-indexer.py      # Before stop: indexes conversation history
+├── live-session-indexer.py # Before stop: chunks session into segments
+└── session-recovery.py     # After compact: RLM-based intelligent recovery
 ```
 
 ### Hook Events
@@ -59,9 +68,12 @@ All automation is powered by **5 Python hooks** in `~/.claude/hooks/`:
 |-------|------|------|--------|
 | `UserPromptSubmit` | Every message | `skill-matcher.py` | Match skills, suggest if score ≥10 |
 | `UserPromptSubmit` | Every message | `large-input-detector.py` | Detect >50K chars, suggest RLM |
+| `UserPromptSubmit` | Every message | `history-search.py` | Suggest relevant past sessions |
 | `PostToolUse` | After Read | `skill-tracker.py` | Track SKILL.md reads |
 | `Stop` | Before finish | `detect-learning.py` | Detect 3+ failures, offer skill creation |
-| `SessionStart` | After /compact | `session-recovery.py` | Inject persistence files |
+| `Stop` | Before finish | `history-indexer.py` | Update searchable history index |
+| `Stop` | Before finish | `live-session-indexer.py` | Chunk conversation into segments |
+| `SessionStart` | After /compact | `session-recovery.py` | RLM-based intelligent context recovery |
 
 ---
 
@@ -70,21 +82,24 @@ All automation is powered by **5 Python hooks** in `~/.claude/hooks/`:
 | You Do This | Claude Gets This |
 |-------------|------------------|
 | Send any message | `[SKILL MATCH]` if relevant skill exists |
+| Send any message | `[HISTORY MATCH]` if relevant past work exists |
 | Paste >50K chars | `[LARGE INPUT DETECTED - RLM RECOMMENDED]` |
-| Context compacts | Full contents of persistence files injected |
+| Context compacts | Persistence files + relevant conversation segments (RLM-based) |
+| Claude finishes responding | Live session chunked into semantic segments |
+| Claude finishes responding | History index updated |
 | Solve via trial-and-error | `[LEARNING MOMENT DETECTED]` with skill creation offer |
 | Read a SKILL.md | Usage count and lastUsed updated |
 
 ---
 
-## Skills Library (15 Skills)
+## Skills Library (16 Skills)
 
 | Category | Skills |
 |----------|--------|
 | **Meta** (9) | skill-index, skill-matcher, skill-loader, skill-tracker, skill-creator, skill-updater, skill-improver, skill-validator, skill-health |
 | **Setup** (2) | deno2-http-kv-server, hono-bun-sqlite-api |
 | **API** (1) | llm-api-tool-use |
-| **Utility** (1) | markdown-to-pdf |
+| **Utility** (2) | markdown-to-pdf, history |
 | **Workflow** (1) | udcp |
 | **Fallback** (1) | web-research |
 
@@ -117,20 +132,25 @@ python rlm_tools/aggregate.py rlm_context/results/
 |------|------|--------|
 | 8-Book Corpus | 4.86M chars (~1.2M tokens) | ✅ Verified via grep |
 | FastAPI Codebase | 3.68M chars (~920K tokens) | ✅ Verified via grep |
+| Session Recovery | 3 segments, ~2K tokens | ✅ Verified via /compact |
 
 ---
 
-## Session Persistence
+## Session Persistence (RLM-Based)
 
-Three files that persist across context compaction:
+Three files that persist across context compaction, plus intelligent segment recovery:
 
-| File | Purpose |
-|------|---------|
+| Component | Purpose |
+|-----------|---------|
 | `context.md` | Current goal, key decisions |
 | `todos.md` | Task progress tracking |
 | `insights.md` | Accumulated learnings |
+| `segments.json` | Live session chunks with scoring |
 
-**After compaction**: `session-recovery.py` automatically injects all three files into Claude's context.
+**After compaction**:
+1. `live-session-indexer.py` has already chunked conversation into semantic segments
+2. `session-recovery.py` loads persistence files + scores and retrieves the most relevant segments
+3. Claude sees actual conversation excerpts, not just summaries - **zero data loss**
 
 ---
 
@@ -142,7 +162,7 @@ PERSISTANT MEMORY/
 ├── context.md             # Session persistence: current goal
 ├── todos.md               # Session persistence: task tracking
 ├── insights.md            # Session persistence: learnings
-├── skills/                # Skills library (15 skills)
+├── skills/                # Skills library (16 skills)
 │   └── */SKILL.md
 ├── rlm_tools/             # RLM processing tools
 │   ├── probe.py           # Analyze structure
@@ -154,6 +174,23 @@ PERSISTANT MEMORY/
 │   ├── HOW_TO_USE.md      # Complete guide
 │   └── VERIFIED_TEST_RESULTS.md
 └── requirements.txt
+
+~/.claude/                 # User-level Claude Code config
+├── settings.json          # Hook configuration (8 hooks)
+├── hooks/                 # The 8 automation hooks
+│   ├── skill-matcher.py
+│   ├── large-input-detector.py
+│   ├── history-search.py
+│   ├── skill-tracker.py
+│   ├── detect-learning.py
+│   ├── history-indexer.py
+│   ├── live-session-indexer.py
+│   └── session-recovery.py
+├── sessions/              # Live session segment indexes
+│   └── <session-id>/segments.json
+├── history/               # Searchable history index
+│   └── index.json
+└── skills/                # Skills library
 ```
 
 ---
@@ -161,10 +198,12 @@ PERSISTANT MEMORY/
 ## Installation (If Starting Fresh)
 
 ```bash
-# 1. Create hooks directory
+# 1. Create directories
 mkdir -p ~/.claude/hooks
+mkdir -p ~/.claude/sessions
+mkdir -p ~/.claude/history
 
-# 2. Copy hook scripts
+# 2. Copy hook scripts (8 hooks)
 cp hooks/*.py ~/.claude/hooks/
 chmod +x ~/.claude/hooks/*.py
 

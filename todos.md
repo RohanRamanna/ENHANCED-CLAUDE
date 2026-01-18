@@ -20,7 +20,13 @@
 
 ## Completed (This Session)
 
-### Phase 11: RLM-based Live Session Persistence (LATEST)
+### Phase 12: Documentation Update (LATEST)
+- [x] Update docs/HOW_TO_USE.md with 5 systems, 8 hooks, RLM-based session persistence
+- [x] Update README.md with 5 systems, 8 hooks, new features
+- [x] Update docs/VERIFIED_TEST_RESULTS.md with session recovery test (Test 4)
+- [x] Verify todos.md is up to date
+
+### Phase 11: RLM-based Live Session Persistence
 - [x] Research current session storage and hooks implementation
 - [x] Design live session chunking and indexing architecture
 - [x] Create `~/.claude/hooks/live-session-indexer.py` - chunks live session into segments
