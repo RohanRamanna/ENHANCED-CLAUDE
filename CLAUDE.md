@@ -49,19 +49,20 @@ This repository transforms Claude into an **Enhanced Claude** with five integrat
 
 ## The Hooks System
 
-All automation is powered by **8 Python hooks** in `~/.claude/hooks/`:
+All automation is powered by **9 Python hooks** in `~/.claude/hooks/`:
 
 ```
 ~/.claude/hooks/
-├── hook_logger.py          # Shared logging utility for all hooks
-├── skill-matcher.py        # UserPromptSubmit: suggests matching skills
-├── large-input-detector.py # UserPromptSubmit: detects large inputs
-├── history-search.py       # UserPromptSubmit: suggests relevant history
-├── skill-tracker.py        # PostToolUse: tracks skill usage
-├── detect-learning.py      # Stop: detects trial-and-error moments
-├── history-indexer.py      # Stop: indexes conversation history
-├── live-session-indexer.py # Stop: chunks live session for RLM recovery
-└── session-recovery.py     # SessionStart: RLM-based intelligent recovery
+├── hook_logger.py            # Shared logging utility for all hooks
+├── skill-matcher.py          # UserPromptSubmit: suggests matching skills
+├── large-input-detector.py   # UserPromptSubmit: detects large inputs
+├── history-search.py         # UserPromptSubmit: suggests relevant history
+├── learning-moment-pickup.py # UserPromptSubmit: picks up pending learning moments
+├── skill-tracker.py          # PostToolUse: tracks skill usage
+├── detect-learning.py        # Stop: detects learning moments, saves to file
+├── history-indexer.py        # Stop: indexes conversation history
+├── live-session-indexer.py   # Stop: chunks live session for RLM recovery
+└── session-recovery.py       # SessionStart: RLM-based intelligent recovery
 ```
 
 ### Hook Configuration (`~/.claude/settings.json`)
@@ -74,7 +75,8 @@ All automation is powered by **8 Python hooks** in `~/.claude/hooks/`:
         "hooks": [
           {"type": "command", "command": "python3 ~/.claude/hooks/skill-matcher.py"},
           {"type": "command", "command": "python3 ~/.claude/hooks/large-input-detector.py"},
-          {"type": "command", "command": "python3 ~/.claude/hooks/history-search.py"}
+          {"type": "command", "command": "python3 ~/.claude/hooks/history-search.py"},
+          {"type": "command", "command": "python3 ~/.claude/hooks/learning-moment-pickup.py"}
         ]
       }
     ],

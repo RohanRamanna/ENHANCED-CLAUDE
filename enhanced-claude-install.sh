@@ -555,6 +555,86 @@ if __name__ == "__main__":
 HISTORY_SEARCH_EOF
 }
 
+write_learning_moment_pickup() {
+    cat > "$HOOKS_DIR/learning-moment-pickup.py" << 'LEARNING_MOMENT_PICKUP_EOF'
+#!/usr/bin/env python3
+"""
+Learning Moment Pickup Hook - UserPromptSubmit
+Checks for pending learning moments and injects them into context.
+
+Trigger: Every user message (UserPromptSubmit event)
+Logic: Checks for pending-learning-moment.json file
+Action: Injects learning moment into context for Claude to acknowledge
+"""
+
+import json
+import sys
+import os
+from datetime import datetime
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from hook_logger import HookLogger
+
+logger = HookLogger("learning-moment-pickup")
+
+PENDING_FILE = os.path.expanduser("~/.claude/pending-learning-moment.json")
+MAX_AGE_HOURS = 24
+
+def main():
+    logger.info("Hook started")
+
+    if not os.path.exists(PENDING_FILE):
+        logger.debug("No pending learning moment file")
+        sys.exit(0)
+
+    try:
+        with open(PENDING_FILE, 'r') as f:
+            moment = json.load(f)
+        logger.debug(f"Found pending learning moment: {moment.get('reason', 'unknown')}")
+
+        detected_at = datetime.fromisoformat(moment['detected_at'])
+        age_hours = (datetime.now() - detected_at).total_seconds() / 3600
+
+        if age_hours > MAX_AGE_HOURS:
+            logger.info(f"Learning moment too old ({age_hours:.1f} hours), removing")
+            os.remove(PENDING_FILE)
+            sys.exit(0)
+
+        os.remove(PENDING_FILE)
+        logger.info("Consumed pending learning moment file")
+
+        output = {
+            "hookSpecificOutput": {
+                "additionalContext": f"""[LEARNING MOMENT - ACTION NEEDED]
+{moment['reason']}
+
+A learning moment was detected in your previous response. Before addressing the user's current request:
+1. Briefly acknowledge this to the user
+2. Ask if they'd like to save this solution as a reusable skill (/skill-creator)
+3. Or note it in insights.md for future reference
+
+Then proceed with their current request."""
+            }
+        }
+        print(json.dumps(output))
+        logger.info("Injected learning moment context")
+
+    except Exception as e:
+        logger.error(f"Error processing learning moment: {e}", exc_info=True)
+        if os.path.exists(PENDING_FILE):
+            try:
+                os.remove(PENDING_FILE)
+            except:
+                pass
+
+    logger.info("Hook completed")
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main()
+LEARNING_MOMENT_PICKUP_EOF
+}
+
 write_skill_tracker() {
     cat > "$HOOKS_DIR/skill-tracker.py" << 'SKILL_TRACKER_EOF'
 #!/usr/bin/env python3
@@ -664,13 +744,18 @@ write_detect_learning() {
 #!/usr/bin/env python3
 """
 Learning Detection Hook - Stop
-Detects trial-and-error learning moments and suggests skill creation.
+Detects trial-and-error learning moments and saves them for pickup.
+
+Trigger: Before Claude finishes responding (Stop event)
+Logic: Conservative - only triggers on 3+ failures or clear error→fix patterns
+Action: Saves learning moment to file for pickup by UserPromptSubmit hook
 """
 
 import json
 import sys
 import os
 import re
+from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from hook_logger import HookLogger
@@ -771,18 +856,21 @@ def main():
 
     if is_learning_moment:
         logger.info(f"Learning moment detected: {reason}")
-        output = {
-            "continue": True,
-            "systemMessage": f"""[LEARNING MOMENT DETECTED]
-{reason}
 
-You solved a problem through trial-and-error. Consider saving this as a reusable skill:
-1. Run /skill-creator to document the solution
-2. Or add to insights.md for future reference
-
-This helps avoid re-discovering the same solution later."""
+        session_id = os.path.basename(transcript_path).replace('.jsonl', '')
+        pending_file = os.path.expanduser("~/.claude/pending-learning-moment.json")
+        learning_moment = {
+            "detected_at": datetime.now().isoformat(),
+            "reason": reason,
+            "session_id": session_id
         }
-        print(json.dumps(output))
+
+        try:
+            with open(pending_file, 'w') as f:
+                json.dump(learning_moment, f)
+            logger.info(f"Saved learning moment to {pending_file}")
+        except Exception as e:
+            logger.error(f"Failed to save learning moment: {e}")
 
     logger.info("Hook completed")
     sys.exit(0)
@@ -1555,7 +1643,8 @@ write_settings() {
         "hooks": [
           {"type": "command", "command": "python3 ~/.claude/hooks/skill-matcher.py"},
           {"type": "command", "command": "python3 ~/.claude/hooks/large-input-detector.py"},
-          {"type": "command", "command": "python3 ~/.claude/hooks/history-search.py"}
+          {"type": "command", "command": "python3 ~/.claude/hooks/history-search.py"},
+          {"type": "command", "command": "python3 ~/.claude/hooks/learning-moment-pickup.py"}
         ]
       }
     ],
@@ -2089,13 +2178,14 @@ install_global() {
     write_skill_matcher
     write_large_input_detector
     write_history_search
+    write_learning_moment_pickup
     write_skill_tracker
     write_detect_learning
     write_history_indexer
     write_live_session_indexer
     write_session_recovery
     chmod +x "$HOOKS_DIR"/*.py
-    print_success "9 hooks installed"
+    print_success "10 hooks installed"
 
     # Write settings
     print_info "Installing settings..."
@@ -2179,15 +2269,15 @@ check_status() {
 
     # Check hooks
     local hooks_count=0
-    for hook in hook_logger skill-matcher large-input-detector history-search skill-tracker detect-learning history-indexer live-session-indexer session-recovery; do
+    for hook in hook_logger skill-matcher large-input-detector history-search learning-moment-pickup skill-tracker detect-learning history-indexer live-session-indexer session-recovery; do
         if [ -f "$HOOKS_DIR/${hook}.py" ]; then
             ((hooks_count++))
         fi
     done
-    if [ $hooks_count -eq 9 ]; then
-        print_success "Hooks: $hooks_count/9 installed"
+    if [ $hooks_count -eq 10 ]; then
+        print_success "Hooks: $hooks_count/10 installed"
     else
-        print_warning "Hooks: $hooks_count/9 installed"
+        print_warning "Hooks: $hooks_count/10 installed"
     fi
 
     # Check settings

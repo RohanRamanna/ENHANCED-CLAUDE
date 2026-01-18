@@ -61,18 +61,19 @@ That's it! All 5 systems work automatically:
 
 ## The Hooks System
 
-Enhanced Claude is powered by **8 Python hooks** that run automatically:
+Enhanced Claude is powered by **9 Python hooks** that run automatically:
 
 ```
 ~/.claude/hooks/
-├── skill-matcher.py        # Suggests matching skills (UserPromptSubmit)
-├── large-input-detector.py # Detects large inputs, suggests RLM (UserPromptSubmit)
-├── history-search.py       # Suggests relevant past sessions (UserPromptSubmit)
-├── skill-tracker.py        # Tracks skill usage (PostToolUse)
-├── detect-learning.py      # Detects trial-and-error moments (Stop)
-├── history-indexer.py      # Indexes conversation history (Stop)
-├── live-session-indexer.py # Chunks live session into segments (Stop)
-└── session-recovery.py     # RLM-based intelligent recovery (SessionStart)
+├── skill-matcher.py          # Suggests matching skills (UserPromptSubmit)
+├── large-input-detector.py   # Detects large inputs, suggests RLM (UserPromptSubmit)
+├── history-search.py         # Suggests relevant past sessions (UserPromptSubmit)
+├── learning-moment-pickup.py # Picks up pending learning moments (UserPromptSubmit)
+├── skill-tracker.py          # Tracks skill usage (PostToolUse)
+├── detect-learning.py        # Detects learning moments, saves to file (Stop)
+├── history-indexer.py        # Indexes conversation history (Stop)
+├── live-session-indexer.py   # Chunks live session into segments (Stop)
+└── session-recovery.py       # RLM-based intelligent recovery (SessionStart)
 ```
 
 ### Hook Configuration
@@ -87,7 +88,8 @@ All hooks are configured in `~/.claude/settings.json`:
         "hooks": [
           {"type": "command", "command": "python3 ~/.claude/hooks/skill-matcher.py"},
           {"type": "command", "command": "python3 ~/.claude/hooks/large-input-detector.py"},
-          {"type": "command", "command": "python3 ~/.claude/hooks/history-search.py"}
+          {"type": "command", "command": "python3 ~/.claude/hooks/history-search.py"},
+          {"type": "command", "command": "python3 ~/.claude/hooks/learning-moment-pickup.py"}
         ]
       }
     ],
@@ -133,8 +135,9 @@ All hooks are configured in `~/.claude/settings.json`:
 | `UserPromptSubmit` | Every user message | `skill-matcher.py` | Scores and suggests matching skills |
 | `UserPromptSubmit` | Every user message | `large-input-detector.py` | Detects large inputs, suggests RLM |
 | `UserPromptSubmit` | Every user message | `history-search.py` | Suggests relevant past sessions |
+| `UserPromptSubmit` | Every user message | `learning-moment-pickup.py` | Picks up pending learning moments |
 | `PostToolUse` | After Read tool | `skill-tracker.py` | Updates skill metadata on SKILL.md reads |
-| `Stop` | Before Claude finishes | `detect-learning.py` | Detects trial-and-error, offers skill creation |
+| `Stop` | Before Claude finishes | `detect-learning.py` | Detects learning moments, saves to file |
 | `Stop` | Before Claude finishes | `history-indexer.py` | Updates searchable history index |
 | `Stop` | Before Claude finishes | `live-session-indexer.py` | Chunks conversation into segments |
 | `SessionStart` | After /compact or /resume | `session-recovery.py` | RLM-based intelligent context recovery |
@@ -482,7 +485,7 @@ chmod +x enhanced-claude-install.sh
 ### What Gets Installed
 
 **Global components** (`~/.claude/`):
-- 9 hooks (skill-matcher, large-input-detector, history-search, skill-tracker, detect-learning, history-indexer, live-session-indexer, session-recovery, + hook_logger)
+- 10 hooks (skill-matcher, large-input-detector, history-search, learning-moment-pickup, skill-tracker, detect-learning, history-indexer, live-session-indexer, session-recovery, + hook_logger)
 - 17 skills in skill-index
 - settings.json with hook configuration
 - sessions/ and history/ directories
