@@ -23,15 +23,22 @@ This repository provides **five integrated systems** for Claude Code, all powere
 
 ## Quick Start
 
-### Step 1: Install Hooks (One-Time Setup)
-
-The hooks are already configured in `~/.claude/settings.json`. If you're setting up fresh:
+### Step 1: Run the Installer
 
 ```bash
-# Copy hooks to your Claude config
-cp -r hooks/* ~/.claude/hooks/
-chmod +x ~/.claude/hooks/*.py
+# Download the standalone installer
+curl -O https://raw.githubusercontent.com/RohanRamanna/ENHANCED-CLAUDE/main/enhanced-claude-install.sh
+chmod +x enhanced-claude-install.sh
+
+# Run it (interactive menu)
+./enhanced-claude-install.sh
 ```
+
+Choose from:
+1. **Full install** - Global components + project setup (recommended for first time)
+2. **Global only** - Just hooks and skills (run once, works for all projects)
+3. **Project only** - Just persistence files and RLM tools (for new projects)
+4. **Check status** - Verify what's installed
 
 ### Step 2: Just Use Claude Code
 
@@ -456,33 +463,53 @@ cat ~/.claude/skills/skill-name/SKILL.md
 - **Claude Code** (CLI) - The system uses Claude Code's native tools
 - **Python 3.8+** - For running hooks and RLM tools
 
-### One-Time Setup
+### One-Command Install (Recommended)
 
 ```bash
-# 1. Clone or download this repository
-cd "/path/to/PERSISTANT MEMORY"
+# Download the standalone installer
+curl -O https://raw.githubusercontent.com/RohanRamanna/ENHANCED-CLAUDE/main/enhanced-claude-install.sh
+chmod +x enhanced-claude-install.sh
 
-# 2. Create hooks directory
-mkdir -p ~/.claude/hooks
+# Run with interactive menu
+./enhanced-claude-install.sh
 
-# 3. Copy hook scripts (if not already done)
-# The hooks are in this repo and should be copied to ~/.claude/hooks/
-# They are:
-#   - skill-matcher.py
-#   - large-input-detector.py
-#   - skill-tracker.py
-#   - detect-learning.py
-#   - session-recovery.py
+# Or use CLI flags for non-interactive install
+./enhanced-claude-install.sh --global    # Install global components only
+./enhanced-claude-install.sh --project   # Install project components only
+./enhanced-claude-install.sh --check     # Check installation status
+```
 
-# 4. Make hooks executable
-chmod +x ~/.claude/hooks/*.py
+### What Gets Installed
 
-# 5. Verify settings.json has hook configuration
-cat ~/.claude/settings.json
+**Global components** (`~/.claude/`):
+- 9 hooks (skill-matcher, large-input-detector, history-search, skill-tracker, detect-learning, history-indexer, live-session-indexer, session-recovery, + hook_logger)
+- 17 skills in skill-index
+- settings.json with hook configuration
+- sessions/ and history/ directories
 
-# 6. Reload hooks in Claude Code
-# Run: /hooks
+**Project components** (current directory):
+- context.md - Current goal tracking
+- todos.md - Task progress tracking
+- insights.md - Accumulated learnings
+- rlm_tools/ - RLM processing utilities
+- rlm_context/ - RLM working directory
+
+### Post-Installation
+
+```bash
+# Reload hooks in Claude Code
+/hooks
+
 # Or restart Claude Code
+```
+
+### Setting Up a New Project
+
+Once global components are installed, setting up a new project is simple:
+
+```bash
+mkdir my-new-project && cd my-new-project
+./enhanced-claude-install.sh --project   # Or choose option 3 in interactive mode
 ```
 
 ### Optional Dependencies
