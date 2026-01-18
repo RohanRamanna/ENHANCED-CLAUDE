@@ -250,9 +250,9 @@ Apply RLM principles to the CURRENT session:
 ```json
 {
     "version": 1,
-    "session_id": "432779da-2df7-404b-aed6-c529c2b5dced",
-    "project": "-Users-rohanramanna-Documents-AI-CODING-STUFF-PERSISTANT-MEMORY",
-    "jsonl_file": "/Users/rohanramanna/.claude/projects/.../432779da-....jsonl",
+    "session_id": "<session-uuid>",
+    "project": "<project-name>",
+    "jsonl_file": "~/.claude/projects/<project>/<session-uuid>.jsonl",
     "last_indexed_line": 65,
     "segments": [
         {

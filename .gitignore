@@ -24,8 +24,8 @@ rlm_context/code_corpus.txt
 !rlm_context/chunks/.gitkeep
 !rlm_context/results/.gitkeep
 
-# Keep manifest for reference
-!rlm_context/chunks/manifest.json
+# Manifest has paths that may be personal
+rlm_context/chunks/manifest.json
 
 # OS files
 .DS_Store
@@ -39,3 +39,13 @@ Thumbs.db
 
 # Logs
 *.log
+
+# User session data (generated during use)
+# These files may contain personal conversation history
+*.jsonl
+sessions/
+history/
+
+# Backup files
+*.backup.*
+*.bak

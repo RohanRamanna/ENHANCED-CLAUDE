@@ -38,28 +38,6 @@ sys.exit(0)
 
 For global automation (skills, session recovery), use user settings.
 
-### RLM Architecture Mapping
-
-| Paper Component | Claude Code Equivalent |
-|-----------------|----------------------|
-| Root LM | Main conversation |
-| Sub-LM (llm_query) | Task tool with subagents |
-| REPL Environment | Bash tool + filesystem |
-| context variable | Files on disk |
-| FINAL() output | Return to main conversation |
-
-**Key insight**: No external API key needed - Claude Code IS the RLM.
-
-### When to Use Each System
-
-| Scenario | System | Why |
-|----------|--------|-----|
-| Context compacted | Session Persistence | Auto-loaded via hook |
-| Large input (>50K chars) | RLM | Auto-detected via hook |
-| Need a specific skill | Auto-Skills | Auto-matched via hook |
-| Trial-and-error solved | Learning Detection | Auto-detected via hook |
-| Ask about past work | Searchable History | Auto-suggested via hook |
-
 ### Searchable History: Zero Data Duplication
 
 The key insight: **index WHERE data is, not WHAT it contains**.
@@ -73,35 +51,13 @@ The key insight: **index WHERE data is, not WHAT it contains**.
 
 Apply RLM principles to the CURRENT session for zero data loss after compaction:
 
-1. **Segment Detection** - Natural boundaries:
-   - Task completion (TodoWrite with completed items)
-   - Topic change (new user question)
-   - Time gaps (> 5 minutes)
-   - Max segment size (100 lines)
-
-2. **Segment Scoring** - Select most relevant after compaction:
-   - Recency: 50 points max, -5 per hour
-   - Task match: +10 per topic matching pending todos
-   - Active work: +15 for segments with Edit/Write
-   - Decisions: +10 if segment contains key decisions
-
-3. **Content Extraction** - Load actual JSONL content, not just metadata:
-   - Extract user messages, assistant responses
-   - Highlight file modifications
-   - Show completed/in-progress tasks
-   - Stay within ~2000 token budget
+1. **Segment Detection** - Natural boundaries (task completion, topic change, time gaps)
+2. **Segment Scoring** - Recency + task relevance + active work indicators
+3. **Content Extraction** - Load actual JSONL content, not just metadata
 
 ## Patterns Identified
 
-### Conservative Learning Detection
-
-Only trigger skill creation offers when:
-- 3+ tool failures followed by success
-- OR 5+ "let me try" phrases in conversation
-
-This prevents false positives and annoying prompts.
-
-### Skill Matching Algorithm (Implemented)
+### Skill Matching Algorithm
 
 | Match Type | Points |
 |------------|--------|
@@ -111,19 +67,15 @@ This prevents false positives and annoying prompts.
 | Tag word match | +2 per tag |
 | Recent use (< 7 days) | +1 |
 
-**Threshold**: ≥10 = suggest skill
+**Threshold**: >= 10 = suggest skill
 
-### Effective RLM Query Design
+### Conservative Learning Detection
 
-- Be specific: "Find all character deaths" > "Analyze the books"
-- Request structured output: "List with book name, character, cause"
-- Include verification hooks: "Include line numbers or quotes"
+Only trigger skill creation offers when:
+- 3+ tool failures followed by success
+- OR 5+ "let me try" phrases in conversation
 
-### Parallel Subagent Batching
-
-- 4 chunks per subagent works well
-- 3-6 parallel subagents is efficient
-- More subagents = faster but higher cost
+This prevents false positives and annoying prompts.
 
 ## Gotchas & Pitfalls
 
@@ -134,64 +86,11 @@ This prevents false positives and annoying prompts.
 - JSON output must be valid
 - Hooks have 60-second timeout
 
-### Session Recovery Hook Path
+### Project Directory Detection
 
-The `session-recovery.py` hook has a hardcoded PROJECT_DIR. For other projects, either:
-1. Create project-specific hooks, or
-2. Use `$CLAUDE_PROJECT_DIR` environment variable
+Hooks use `os.getcwd()` to detect the project directory. If you run Claude Code from a different directory, ensure you're in the project root.
 
-### Skills Location
-
-Skills are in `~/.claude/skills/` (global), not project-specific. This means:
-- Skills work across all projects
-- skill-matcher.py uses this path
-- skill-tracker.py updates metadata here
-
-### Chunk Overlap Matters
-
-- Default 500 chars might miss context at boundaries
-- For technical/legal docs, consider 1000-2000 char overlap
-
-## The Complete Automation Stack
-
-```
-~/.claude/
-├── settings.json           # Hook configuration (8 hooks)
-├── hooks/
-│   ├── skill-matcher.py    # UserPromptSubmit: match skills
-│   ├── large-input-detector.py  # UserPromptSubmit: detect large inputs
-│   ├── history-search.py   # UserPromptSubmit: suggest past sessions
-│   ├── skill-tracker.py    # PostToolUse: track usage
-│   ├── detect-learning.py  # Stop: detect learning moments
-│   ├── history-indexer.py  # Stop: index conversation history
-│   ├── live-session-indexer.py  # Stop: chunk live session into segments
-│   └── session-recovery.py # SessionStart: RLM-based intelligent recovery
-├── sessions/
-│   └── <session-id>/
-│       └── segments.json   # Live session segment index
-├── history/
-│   └── index.json          # Searchable history index
-└── skills/
-    ├── skill-index/
-    │   └── index.json      # Central skill index
-    └── */
-        ├── SKILL.md        # Skill content
-        └── metadata.json   # Usage tracking
-```
-
-## Open Questions (Resolved)
-
-- ~~How does RLM perform on code?~~ → **Works excellently** (FastAPI test)
-- ~~How to make skills self-improving?~~ → **Auto-skills hooks** (matcher, tracker, learning detection)
-- ~~Can we detect when RLM is needed automatically?~~ → **Yes, via large-input-detector.py hook**
-- ~~How to make session persistence automatic?~~ → **Yes, via session-recovery.py hook**
-- ~~How to search past conversations without loading everything?~~ → **Searchable history with index pointers**
-
-## Remaining Questions
-
-- What's the optimal chunk size for different document types?
-- How to handle cross-chunk references more elegantly?
-- How does performance vary across programming languages?
+Alternatively, set `CLAUDE_PROJECT_DIR` environment variable.
 
 ---
 
