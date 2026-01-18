@@ -61,18 +61,27 @@ python rlm_tools/aggregate.py rlm_context/results/ --query "Your question"
 | Chunks | 5 |
 | Result | Comprehensive paper synthesis |
 
-### Test 2: 8-Book Literary Corpus (True RLM Test)
+### Test 2: 8-Book Literary Corpus
 | Metric | Value |
 |--------|-------|
 | Corpus | 8 classic novels (Austen, Dickens, Melville, Shelley, etc.) |
 | Input size | **4,861,186 characters (~1.2M tokens)** |
 | Context overflow | **6x larger than context window** |
 | Chunks | 24 |
-| Subagents | 6 (parallel batches) |
 | Query | "Find all character deaths across all books" |
 | Result | **Verified correct** - deaths confirmed via grep at exact line numbers |
 
-**Key finding**: RLM successfully processed a corpus that *cannot fit in context* and returned verifiable results.
+### Test 3: FastAPI Codebase (Code Analysis)
+| Metric | Value |
+|--------|-------|
+| Codebase | FastAPI Python framework (1,252 files) |
+| Input size | **3,680,132 characters (~920K tokens)** |
+| Context overflow | **4.6x larger than context window** |
+| Chunks | 19 |
+| Query | "Find all security-related code" |
+| Result | **Verified correct** - 8 security classes confirmed via grep |
+
+**Key finding**: RLM works on **both prose AND code** at scale.
 
 See [docs/VERIFIED_TEST_RESULTS.md](docs/VERIFIED_TEST_RESULTS.md) for full verification details.
 

@@ -47,7 +47,13 @@ This repository provides **two complementary systems**:
 
 **Purpose**: Process documents that exceed context window.
 
-**Verified**: Successfully processed 8-book corpus (4.86M chars, ~1.2M tokens, 6x context window).
+**Verified on**:
+| Test | Type | Size | Overflow | Result |
+|------|------|------|----------|--------|
+| 8-Book Corpus | Literature | 4.86M chars (~1.2M tokens) | 6x | ✅ Deaths verified via grep |
+| FastAPI Codebase | Python (1,252 files) | 3.68M chars (~920K tokens) | 4.6x | ✅ Security classes verified via grep |
+
+**Works on both prose AND code.**
 
 ---
 
