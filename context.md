@@ -27,15 +27,18 @@
    - `live-session-indexer.py` - Chunks live session into segments (NEW)
    - `session-recovery.py` - RLM-based intelligent recovery with segments (ENHANCED)
 3. **Conservative learning detection** - Only triggers on 3+ failures followed by success
-4. **Global skills** - Skills in `~/.claude/skills/` (not project-specific)
+4. **Global skills** - Skills in `~/.claude/skills/` (not project-specific), now 17 skills
 5. **History indexing** - Zero data duplication, index points to existing JSONL files
+6. **Hook logging** - All 8 hooks use shared `hook_logger.py` for debugging
+7. **Semantic code chunking** - `--strategy code` for 6 languages (Python, JS, TS, Go, Rust, Java)
+8. **Parallel processing** - `parallel_process.py` for up to 10x RLM speedup
 
 ## Important Files
 
 | File | Purpose |
 |------|---------|
 | `~/.claude/settings.json` | Hook configuration |
-| `~/.claude/hooks/*.py` | The 8 automation hooks |
+| `~/.claude/hooks/*.py` | The 8 automation hooks (+ hook_logger.py shared utility) |
 | `~/.claude/history/index.json` | Searchable history index |
 | `~/.claude/sessions/<id>/segments.json` | Live session segment index |
 | `~/.claude/skills/skill-index/index.json` | Skill index for matching |
@@ -72,4 +75,4 @@ After /compact:
 
 ---
 
-**Last Updated**: 2026-01-18
+**Last Updated**: 2026-01-19

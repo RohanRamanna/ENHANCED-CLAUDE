@@ -427,7 +427,7 @@ When you ask about something you've worked on before:
 | **Meta** (9) | skill-index, skill-matcher, skill-loader, skill-tracker, skill-creator, skill-updater, skill-improver, skill-validator, skill-health |
 | **Setup** (2) | deno2-http-kv-server, hono-bun-sqlite-api |
 | **API** (1) | llm-api-tool-use |
-| **Utility** (2) | markdown-to-pdf, history |
+| **Utility** (3) | markdown-to-pdf, history, rlm |
 | **Workflow** (1) | udcp |
 | **Fallback** (1) | web-research |
 
@@ -582,8 +582,9 @@ Read the aggregated results or ask Claude to summarize them.
 | Tool | Purpose |
 |------|---------|
 | `probe.py` | Analyze input structure and size |
-| `chunk.py` | Split large files into processable pieces |
+| `chunk.py` | Split large files (supports semantic code chunking and progress tracking) |
 | `aggregate.py` | Combine chunk results into final answer |
+| `parallel_process.py` | Coordinate parallel chunk processing (up to 10x speedup) |
 | `sandbox.py` | Safe Python code execution |
 
 ### probe.py Options
@@ -599,9 +600,16 @@ Read the aggregated results or ask Claude to summarize them.
 |------|-------------|---------|
 | `<file>` | File to chunk | Required |
 | `--size` | Chunk size in characters | 200,000 |
-| `--strategy` | `size`, `lines`, `headers`, `paragraphs` | `size` |
+| `--strategy` | `size`, `lines`, `headers`, `paragraphs`, `code` | `size` |
 | `--output` | Output directory | `./chunks/` |
 | `--overlap` | Character overlap between chunks | 500 |
+| `--progress` | Show progress bar with ETA | False |
+| `--language` | Force language for code strategy | Auto-detect |
+
+**Semantic Code Chunking** (`--strategy code`):
+- Splits at function/class boundaries
+- Auto-detects Python, JavaScript, TypeScript, Go, Rust, Java
+- Keeps related code together (classes with their methods)
 
 ### aggregate.py Options
 

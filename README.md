@@ -42,7 +42,7 @@ That's it. No manual setup needed.
 | | `detect-learning.py` | Auto-detects trial-and-error, offers skill creation |
 | **Searchable History** | `history-indexer.py` | Indexes conversations on session end |
 | | `history-search.py` | Suggests relevant past sessions |
-| **Skills Library** | Manual | 16 skills invoked via `/skill-name` |
+| **Skills Library** | Manual | 17 skills invoked via `/skill-name` |
 
 ---
 
@@ -92,14 +92,14 @@ All automation is powered by **8 Python hooks** in `~/.claude/hooks/`:
 
 ---
 
-## Skills Library (16 Skills)
+## Skills Library (17 Skills)
 
 | Category | Skills |
 |----------|--------|
 | **Meta** (9) | skill-index, skill-matcher, skill-loader, skill-tracker, skill-creator, skill-updater, skill-improver, skill-validator, skill-health |
 | **Setup** (2) | deno2-http-kv-server, hono-bun-sqlite-api |
 | **API** (1) | llm-api-tool-use |
-| **Utility** (2) | markdown-to-pdf, history |
+| **Utility** (3) | markdown-to-pdf, history, rlm |
 | **Workflow** (1) | udcp |
 | **Fallback** (1) | web-research |
 
@@ -162,12 +162,13 @@ PERSISTANT MEMORY/
 ├── context.md             # Session persistence: current goal
 ├── todos.md               # Session persistence: task tracking
 ├── insights.md            # Session persistence: learnings
-├── skills/                # Skills library (16 skills)
+├── skills/                # Skills library (17 skills)
 │   └── */SKILL.md
 ├── rlm_tools/             # RLM processing tools
 │   ├── probe.py           # Analyze structure
-│   ├── chunk.py           # Split files
+│   ├── chunk.py           # Split files (semantic code chunking, progress tracking)
 │   ├── aggregate.py       # Combine results
+│   ├── parallel_process.py # Parallel processing coordination
 │   └── sandbox.py         # Safe execution
 ├── rlm_context/           # RLM working directory
 ├── docs/
@@ -177,7 +178,8 @@ PERSISTANT MEMORY/
 
 ~/.claude/                 # User-level Claude Code config
 ├── settings.json          # Hook configuration (8 hooks)
-├── hooks/                 # The 8 automation hooks
+├── hooks/                 # The 8 automation hooks + shared utilities
+│   ├── hook_logger.py     # Shared logging utility
 │   ├── skill-matcher.py
 │   ├── large-input-detector.py
 │   ├── history-search.py

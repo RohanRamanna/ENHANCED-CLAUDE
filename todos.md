@@ -16,6 +16,14 @@
 
 ## Completed (This Session)
 
+### Phase 14: Hook Logging & Documentation Update
+- [x] Create `~/.claude/hooks/hook_logger.py` shared logging utility
+- [x] Add logging to all 8 hooks (skill-matcher, large-input-detector, history-search, skill-tracker, detect-learning, history-indexer, live-session-indexer, session-recovery)
+- [x] Fix Stop hook schema in detect-learning.py (use `systemMessage` not `hookSpecificOutput`)
+- [x] Fix hardcoded PROJECT_DIR in session-recovery.py
+- [x] Update all documentation files (CLAUDE.md, README.md, HOW_TO_USE.md, insights.md, context.md, todos.md)
+- [x] Push changes to both private and public repos
+
 ### Phase 13: RLM Enhancements
 - [x] Create RLM-specific skill (`~/.claude/skills/rlm/SKILL.md`)
 - [x] Add semantic code chunking strategy (`--strategy code`)
