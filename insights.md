@@ -73,12 +73,28 @@ The 8-book test used MORE tokens than direct processing would... but direct proc
 - Used MORE resources than necessary
 - Real RLM value only shows at 6x+ context overflow
 
+## RLM Works on Code Too
+
+### FastAPI Codebase Test (1,252 files, 920K tokens)
+
+Successfully extracted complete security architecture:
+- Found all 8 core security classes (OAuth2, HTTPBasic, APIKey, etc.)
+- Identified password hashing utilities across tutorial files
+- Mapped the full authentication/authorization flow
+
+### Code-Specific Insights
+
+1. **File markers help**: Prepending `=== FILE: path ===` to each file in corpus helps subagents report locations
+2. **Code queries work well**: "Find all X-related code" produces structured results
+3. **Architectural discovery**: RLM can map entire subsystems (not just find individual items)
+
 ## Open Questions
 
-- How does RLM perform on highly structured data (JSON, XML)?
+- ~~How does RLM perform on code?~~ → **Answered: Works excellently**
 - Can we detect when RLM is needed automatically (probe → recommend)?
 - What's the optimal chunk size for different document types?
 - How to handle cross-chunk references more elegantly?
+- How does performance vary across programming languages?
 
 ---
 

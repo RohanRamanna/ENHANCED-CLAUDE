@@ -16,6 +16,10 @@ rlm_context/aggregated_results.txt
 
 # Test corpus files (downloaded from Project Gutenberg)
 rlm_context/book*.txt
+
+# Cloned repositories for testing (too large)
+rlm_context/fastapi_repo/
+rlm_context/code_corpus.txt
 !rlm_context/.gitkeep
 !rlm_context/chunks/.gitkeep
 !rlm_context/results/.gitkeep
