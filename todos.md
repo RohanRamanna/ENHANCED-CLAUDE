@@ -16,6 +16,19 @@
 
 ## Completed (This Session)
 
+### Phase 15: Hook Bug Fixes & Development Skill
+- [x] Diagnose "UserPromptSubmit hook error" issue
+- [x] Research Claude Code hook output requirements (web search)
+- [x] Discover known bug: any stdout causes error ([Issue #13912](https://github.com/anthropics/claude-code/issues/13912))
+- [x] Fix hooks to output NOTHING when nothing to report
+- [x] Change hook paths from `~` to absolute paths in settings.json
+- [x] Fix live-session-indexer.py KeyError: 'messages' bug
+- [x] Create hook-development skill with comprehensive documentation
+- [x] Add hook-development to skill-index (now 18 skills)
+- [x] Update CLAUDE.md with hook bug workarounds
+- [x] Update insights.md with hook learnings
+- [x] Update context.md with new decisions
+
 ### Phase 14: Hook Logging & Documentation Update
 - [x] Create `~/.claude/hooks/hook_logger.py` shared logging utility
 - [x] Add logging to all 8 hooks (skill-matcher, large-input-detector, history-search, skill-tracker, detect-learning, history-indexer, live-session-indexer, session-recovery)

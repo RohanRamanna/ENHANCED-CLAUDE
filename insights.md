@@ -193,10 +193,54 @@ The `--strategy code` option intelligently splits code at function/class boundar
 | Go | `func`, `package`, `type struct` |
 | Rust | `fn`, `impl`, `struct`, `enum` |
 
+### UserPromptSubmit Hook Output Bug (Critical)
+
+**Bug**: Claude Code shows "UserPromptSubmit hook error" for ANY stdout, even valid JSON ([Issue #13912](https://github.com/anthropics/claude-code/issues/13912)).
+
+**Discovery process**:
+1. All hooks were outputting `{}` when nothing to report
+2. This caused "hook error" on every prompt
+3. Changing to `{"hookSpecificOutput": {}}` made it worse (all 4 hooks failed)
+4. Solution: **Output NOTHING** when nothing to report
+
+**Working pattern**:
+```python
+# When nothing to report - NO OUTPUT
+if no_matches:
+    sys.exit(0)  # Just exit
+
+# When you have context - output JSON
+if matches:
+    print(json.dumps({"hookSpecificOutput": {"additionalContext": "..."}}, flush=True))
+    sys.exit(0)
+```
+
+**Note**: Hooks that DO output context will show an error but **the context IS injected correctly** - it's a cosmetic display bug.
+
+### Absolute Paths in Hook Config
+
+Using `~` in hook commands may cause issues. Use absolute paths:
+```json
+// May not work
+"command": "python3 ~/.claude/hooks/my-hook.py"
+
+// Works reliably
+"command": "python3 /Users/username/.claude/hooks/my-hook.py"
+```
+
+### Hook Development Skill Created
+
+Created `~/.claude/skills/hook-development/SKILL.md` documenting:
+- All hook events and their input/output schemas
+- Known bugs and workarounds
+- Python template for new hooks
+- Debugging techniques
+
 ## Remaining Questions
 
 - What's the optimal chunk size for different document types?
 - How to handle cross-chunk references more elegantly?
+- Will the UserPromptSubmit output bug be fixed in future Claude Code versions?
 
 ---
 
