@@ -27,11 +27,12 @@
    - `live-session-indexer.py` - Chunks live session into segments (NEW)
    - `session-recovery.py` - RLM-based intelligent recovery with segments (ENHANCED)
 3. **Conservative learning detection** - Only triggers on 3+ failures followed by success
-4. **Global skills** - Skills in `~/.claude/skills/` (not project-specific), now 17 skills
+4. **Global skills** - Skills in `~/.claude/skills/` (not project-specific), now **18 skills** (added hook-development)
 5. **History indexing** - Zero data duplication, index points to existing JSONL files
-6. **Hook logging** - All 8 hooks use shared `hook_logger.py` for debugging
+6. **Hook logging** - All 9 hooks use shared `hook_logger.py` for debugging
 7. **Semantic code chunking** - `--strategy code` for 6 languages (Python, JS, TS, Go, Rust, Java)
 8. **Parallel processing** - `parallel_process.py` for up to 10x RLM speedup
+9. **Hook output bug workaround** - UserPromptSubmit hooks must output NOTHING when nothing to report (known Claude Code bug)
 
 ## Important Files
 
@@ -67,11 +68,13 @@ After /compact:
 ## Notes for Future Self
 
 - All automation is in `~/.claude/hooks/` (user-level, works across projects)
-- Hook configuration is in `~/.claude/settings.json`
+- Hook configuration is in `~/.claude/settings.json` - **use absolute paths, not `~`**
 - Hooks can be reloaded with `/hooks` command
 - History index at `~/.claude/history/index.json`
 - Search history with `/history search <query>`
 - Test hooks manually: `echo '{"prompt": "test"}' | python3 ~/.claude/hooks/skill-matcher.py`
+- **Known bug**: UserPromptSubmit hooks with output show "hook error" - cosmetic only, context IS injected
+- See `~/.claude/skills/hook-development/SKILL.md` for hook development guidance
 
 ---
 

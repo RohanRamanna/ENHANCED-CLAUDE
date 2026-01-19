@@ -115,6 +115,34 @@ All automation is powered by **9 Python hooks** in `~/.claude/hooks/`:
 }
 ```
 
+### Known Hook Bugs & Workarounds
+
+**IMPORTANT**: Claude Code has a known bug ([Issue #13912](https://github.com/anthropics/claude-code/issues/13912)) where UserPromptSubmit hooks show "hook error" even when working correctly.
+
+| Issue | Workaround |
+|-------|------------|
+| Any stdout causes "hook error" | Output **nothing** when hook has nothing to report (just `sys.exit(0)`) |
+| Paths with `~` may not work | Use absolute paths: `/Users/username/.claude/hooks/...` |
+| Hooks with output show error | **Cosmetic only** - context IS injected correctly, ignore the error |
+
+**Output Rules for UserPromptSubmit Hooks:**
+```python
+# CORRECT - no output when nothing to report
+if no_matches:
+    sys.exit(0)  # Just exit, no output
+
+# CORRECT - output only when you have context to add
+if matches:
+    print(json.dumps({"hookSpecificOutput": {"additionalContext": "..."}}), flush=True)
+    sys.exit(0)
+```
+
+**Stop Hooks use different schema:**
+```python
+# Stop hooks output:
+print('{"continue": true}')  # or {"continue": true, "systemMessage": "..."}
+```
+
 ---
 
 ## System 1: Session Persistence (RLM-based, Automatic)
