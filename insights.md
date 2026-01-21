@@ -4,6 +4,57 @@
 
 ## Key Learnings
 
+### Modular Installers Are Better for Testing (Phase 16)
+
+Instead of one monolithic installer, create separate installers for each system:
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| Monolithic | One command installs everything | Hard to test individual systems, hard to debug |
+| Modular | Test each system independently, easy uninstall | User needs to run multiple commands |
+
+**Decision**: Modular installers for now, can add "install all" option later after testing.
+
+### Embedding Code in Installers (Phase 16)
+
+For self-contained installers that don't require network access:
+
+**Bash (heredoc)**:
+```bash
+cat > "$HOOKS_DIR/hook.py" << 'HOOK_EOF'
+# Full Python code here
+HOOK_EOF
+```
+
+**Windows Batch (PowerShell)**:
+```batch
+powershell -ExecutionPolicy Bypass -Command ^"^
+$code = @' ^
+# PowerShell code here ^
+'@ ^
+$code | Out-File -FilePath 'file.py' -Encoding utf8 ^
+^"
+```
+
+### Settings.json Auto-Merge Pattern (Phase 16)
+
+Don't overwrite existing settings - merge new hooks with existing:
+
+```python
+settings = load_existing_settings()
+if "hooks" not in settings:
+    settings["hooks"] = {}
+
+# Add new hooks only if not already present
+for event, event_hooks in new_hooks.items():
+    if event not in settings["hooks"]:
+        settings["hooks"][event] = []
+    # Check if hook already exists before adding
+    for hook in event_hooks:
+        if not hook_exists(settings["hooks"][event], hook):
+            settings["hooks"][event].append(hook)
+```
+
 ### Claude Code Hooks Are Powerful
 
 Hooks enable truly automatic behavior - not just documentation Claude should follow, but actual code that runs on events.
@@ -154,6 +205,30 @@ This prevents false positives and annoying prompts.
 - Use `rlm_tools/parallel_process.py` to generate batch configurations
 - Spawn ALL batches in a single response for true parallelism (up to 10x speedup)
 
+### Installer Structure Pattern (Phase 16)
+
+```
+installers/
+├── README.md                 # Overview documentation
+├── system-a-{name}/
+│   ├── install.sh           # macOS/Linux (bash + heredocs)
+│   ├── install.bat          # Windows (batch + PowerShell)
+│   ├── uninstall.sh
+│   └── uninstall.bat
+├── system-b-{name}/
+│   └── ...
+└── system-c-{name}/
+    └── ...
+```
+
+Each installer:
+1. Creates backup directory with timestamp
+2. Creates required directories
+3. Writes hook files
+4. Writes skill files (if applicable)
+5. Merges settings.json
+6. Reports what was installed
+
 ## Gotchas & Pitfalls
 
 ### Hook Debugging
@@ -181,43 +256,6 @@ Skills are in `~/.claude/skills/` (global), not project-specific. This means:
 
 - Default 500 chars might miss context at boundaries
 - For technical/legal docs, consider 1000-2000 char overlap
-
-## The Complete Automation Stack
-
-```
-~/.claude/
-├── settings.json           # Hook configuration (8 hooks)
-├── hooks/logs/             # Hook debug logs (auto-rotated)
-├── hooks/
-│   ├── hook_logger.py      # Shared logging utility
-│   ├── skill-matcher.py    # UserPromptSubmit: match skills
-│   ├── large-input-detector.py  # UserPromptSubmit: detect large inputs
-│   ├── history-search.py   # UserPromptSubmit: suggest past sessions
-│   ├── skill-tracker.py    # PostToolUse: track usage
-│   ├── detect-learning.py  # Stop: detect learning moments
-│   ├── history-indexer.py  # Stop: index conversation history
-│   ├── live-session-indexer.py  # Stop: chunk live session into segments
-│   └── session-recovery.py # SessionStart: RLM-based intelligent recovery
-├── sessions/
-│   └── <session-id>/
-│       └── segments.json   # Live session segment index
-├── history/
-│   └── index.json          # Searchable history index
-└── skills/
-    ├── skill-index/
-    │   └── index.json      # Central skill index
-    └── */
-        ├── SKILL.md        # Skill content
-        └── metadata.json   # Usage tracking
-```
-
-## Open Questions (Resolved)
-
-- ~~How does RLM perform on code?~~ → **Works excellently** (FastAPI test)
-- ~~How to make skills self-improving?~~ → **Auto-skills hooks** (matcher, tracker, learning detection)
-- ~~Can we detect when RLM is needed automatically?~~ → **Yes, via large-input-detector.py hook**
-- ~~How to make session persistence automatic?~~ → **Yes, via session-recovery.py hook**
-- ~~How to search past conversations without loading everything?~~ → **Searchable history with index pointers**
 
 ### Semantic Code Chunking Works Well
 
@@ -278,12 +316,50 @@ Created `~/.claude/skills/hook-development/SKILL.md` documenting:
 - Python template for new hooks
 - Debugging techniques
 
+## The Complete Automation Stack
+
+```
+~/.claude/
+├── settings.json           # Hook configuration (8 hooks)
+├── hooks/logs/             # Hook debug logs (auto-rotated)
+├── hooks/
+│   ├── hook_logger.py      # Shared logging utility
+│   ├── skill-matcher.py    # UserPromptSubmit: match skills
+│   ├── large-input-detector.py  # UserPromptSubmit: detect large inputs
+│   ├── history-search.py   # UserPromptSubmit: suggest past sessions
+│   ├── skill-tracker.py    # PostToolUse: track usage
+│   ├── detect-learning.py  # Stop: detect learning moments
+│   ├── history-indexer.py  # Stop: index conversation history
+│   ├── live-session-indexer.py  # Stop: chunk live session into segments
+│   └── session-recovery.py # SessionStart: RLM-based intelligent recovery
+├── sessions/
+│   └── <session-id>/
+│       └── segments.json   # Live session segment index
+├── history/
+│   └── index.json          # Searchable history index
+└── skills/
+    ├── skill-index/
+    │   └── index.json      # Central skill index (18 skills)
+    └── */
+        ├── SKILL.md        # Skill content
+        └── metadata.json   # Usage tracking
+```
+
+## Open Questions (Resolved)
+
+- ~~How does RLM perform on code?~~ → **Works excellently** (FastAPI test)
+- ~~How to make skills self-improving?~~ → **Auto-skills hooks** (matcher, tracker, learning detection)
+- ~~Can we detect when RLM is needed automatically?~~ → **Yes, via large-input-detector.py hook**
+- ~~How to make session persistence automatic?~~ → **Yes, via session-recovery.py hook**
+- ~~How to search past conversations without loading everything?~~ → **Searchable history with index pointers**
+
 ## Remaining Questions
 
 - What's the optimal chunk size for different document types?
 - How to handle cross-chunk references more elegantly?
 - Will the UserPromptSubmit output bug be fixed in future Claude Code versions?
+- How well do the Windows batch installers work in practice?
 
 ---
 
-**Last Updated**: 2026-01-19
+**Last Updated**: 2026-01-21

@@ -14,6 +14,20 @@
 | Searchable History | `history-indexer.py`, `history-search.py` | ✅ Automatic |
 | Skills Library | Manual `/skill-name` | ✅ Working |
 
+## Latest Work: Modular System Installers (Phase 16)
+
+Created 3 separate installer systems for independent testing:
+
+| System | Directory | Contents |
+|--------|-----------|----------|
+| **A: Session Persistence** | `installers/system-a-session-persistence/` | 5 hooks, 1 skill (history) |
+| **B: RLM Detection** | `installers/system-b-rlm/` | 2 hooks, 1 skill (rlm), RLM tools |
+| **C: Auto Skills** | `installers/system-c-auto-skills/` | 5 hooks, 18 skills |
+
+Each system has:
+- `install.sh` / `install.bat` - macOS/Linux and Windows installers
+- `uninstall.sh` / `uninstall.bat` - Uninstallers that preserve data
+
 ## Key Decisions Made
 
 1. **Hooks for automation** - All 5 systems are now automatic via Claude Code hooks
@@ -33,6 +47,10 @@
 7. **Semantic code chunking** - `--strategy code` for 6 languages (Python, JS, TS, Go, Rust, Java)
 8. **Parallel processing** - `parallel_process.py` for up to 10x RLM speedup
 9. **Hook output bug workaround** - UserPromptSubmit hooks must output NOTHING when nothing to report (known Claude Code bug)
+10. **Modular installers** - Each system can be installed independently for testing (Phase 16)
+11. **Self-contained scripts** - All code embedded in installers (no GitHub downloads needed)
+12. **Auto-merge settings.json** - Installers merge with existing hooks, don't overwrite
+13. **Shared hook_logger.py** - Not removed by any uninstaller (shared dependency)
 
 ## Important Files
 
@@ -43,6 +61,9 @@
 | `~/.claude/history/index.json` | Searchable history index |
 | `~/.claude/sessions/<id>/segments.json` | Live session segment index |
 | `~/.claude/skills/skill-index/index.json` | Skill index for matching |
+| `installers/README.md` | Installer documentation |
+| `installers/system-*/install.sh` | macOS/Linux installers |
+| `installers/system-*/install.bat` | Windows installers |
 | `CLAUDE.md` | Main guidance with hooks documentation |
 | `docs/HOW_TO_USE.md` | Complete usage guide |
 
@@ -75,7 +96,16 @@ After /compact:
 - Test hooks manually: `echo '{"prompt": "test"}' | python3 ~/.claude/hooks/skill-matcher.py`
 - **Known bug**: UserPromptSubmit hooks with output show "hook error" - cosmetic only, context IS injected
 - See `~/.claude/skills/hook-development/SKILL.md` for hook development guidance
+- Install systems independently: `./installers/system-a-session-persistence/install.sh`
+- Uninstall preserves data (sessions, history, rlm_tools)
+- Run `/hooks` after installation to reload hooks
+
+## Git Status (Phase 16)
+
+- Commit: `29233ad` - Add modular system installers for independent testing
+- Pushed to: `origin/main` (private repo)
+- Pushed to: `public/main` (public repo via public-release branch)
 
 ---
 
-**Last Updated**: 2026-01-19
+**Last Updated**: 2026-01-21

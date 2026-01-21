@@ -12,9 +12,30 @@
 
 ## Pending
 
-*No pending tasks - all Phase 13 items complete!*
+- [ ] Test installers on fresh machines (macOS, Windows)
+- [ ] Fix any installer bugs discovered during testing
+- [ ] Consider adding "install all" option after testing individual systems
 
 ## Completed (This Session)
+
+### Phase 16: Modular System Installers
+- [x] Create System A installer (Session Persistence & History)
+  - `install.sh` with 5 hooks embedded (session-recovery, live-session-indexer, history-indexer, history-search, hook_logger)
+  - `install.bat` Windows version with PowerShell
+  - `uninstall.sh` and `uninstall.bat`
+- [x] Create System B installer (RLM Detection)
+  - `install.sh` with 2 hooks + RLM tools (probe.py, chunk.py, aggregate.py, parallel_process.py, sandbox.py)
+  - `install.bat` Windows version
+  - `uninstall.sh` and `uninstall.bat`
+- [x] Create System C installer (Auto Skills & Library)
+  - `install.sh` with 5 hooks + 18 skills embedded
+  - `install.bat` Windows version
+  - `uninstall.sh` and `uninstall.bat`
+- [x] Create installers/README.md documentation
+- [x] Update CLAUDE.md with Installation section
+- [x] Update docs/HOW_TO_USE.md with modular installer options
+- [x] Commit and push to private repo (origin/main)
+- [x] Push to public repo (public/main via public-release branch)
 
 ### Phase 15: Hook Bug Fixes & Development Skill
 - [x] Diagnose "UserPromptSubmit hook error" issue
@@ -53,7 +74,7 @@
 - [x] Test Rust codebase - structs, enums, traits, impl blocks detected
 - [x] Fix Rust language detection (handle `pub` keyword)
 
-## Completed (This Session)
+## Completed (Previous Sessions)
 
 ### Phase 12: Documentation Update (LATEST)
 - [x] Update docs/HOW_TO_USE.md with 5 systems, 8 hooks, RLM-based session persistence
@@ -158,4 +179,4 @@
 
 ---
 
-**Last Updated**: 2026-01-19
+**Last Updated**: 2026-01-21
