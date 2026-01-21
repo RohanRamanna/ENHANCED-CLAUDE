@@ -33,6 +33,57 @@ git push public public-release:main
 
 ---
 
+## Installation
+
+Enhanced Claude can be installed as three separate systems or all together. Each system is self-contained and can be tested independently.
+
+### System Installers
+
+```
+installers/
+├── system-a-session-persistence/   # Session Persistence & Searchable History
+├── system-b-rlm/                   # RLM Detection & Processing
+└── system-c-auto-skills/           # Auto Skills & Skills Library
+```
+
+### What Each System Installs
+
+| System | Hooks | Skills | Features |
+|--------|-------|--------|----------|
+| **A: Session Persistence** | 5 hooks | 1 (history) | Context recovery after compaction, searchable history |
+| **B: RLM Detection** | 2 hooks | 1 (rlm) | Large document detection, RLM tools |
+| **C: Auto Skills** | 5 hooks | 18 skills | Skill matching, learning detection, full skills library |
+
+### Quick Install
+
+**macOS/Linux:**
+```bash
+# Install a specific system
+./installers/system-a-session-persistence/install.sh
+./installers/system-b-rlm/install.sh
+./installers/system-c-auto-skills/install.sh
+
+# Uninstall
+./installers/system-a-session-persistence/uninstall.sh
+```
+
+**Windows:**
+```cmd
+installers\system-a-session-persistence\install.bat
+installers\system-b-rlm\install.bat
+installers\system-c-auto-skills\install.bat
+```
+
+### Notes
+
+- All installers auto-merge with existing `settings.json` (no overwrites)
+- Timestamped backups are created before installation
+- Uninstallers preserve data (sessions, history, tools)
+- `hook_logger.py` is shared across systems (not removed by uninstallers)
+- Run `/hooks` after installation to reload hooks
+
+---
+
 ## Enhanced Claude: Self-Improving AI
 
 This repository transforms Claude into an **Enhanced Claude** with five integrated systems, **all powered by automatic hooks**:
@@ -441,7 +492,17 @@ PERSISTANT MEMORY/
 ├── todos.md                  # Session persistence: task tracking
 ├── insights.md               # Session persistence: accumulated learnings
 ├── RESUME.md                 # Recovery instructions (legacy)
-├── skills/                   # Skills library (17 skills)
+├── installers/               # System installers
+│   ├── system-a-session-persistence/
+│   │   ├── install.sh        # macOS/Linux installer
+│   │   ├── install.bat       # Windows installer
+│   │   ├── uninstall.sh      # macOS/Linux uninstaller
+│   │   └── uninstall.bat     # Windows uninstaller
+│   ├── system-b-rlm/
+│   │   └── ...               # Same structure
+│   └── system-c-auto-skills/
+│       └── ...               # Same structure
+├── skills/                   # Skills library (18 skills)
 │   └── */SKILL.md            # Individual skill files
 ├── rlm_tools/                # RLM processing tools
 │   ├── probe.py              # Analyze input structure
