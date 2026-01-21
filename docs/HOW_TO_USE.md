@@ -466,7 +466,44 @@ cat ~/.claude/skills/skill-name/SKILL.md
 - **Claude Code** (CLI) - The system uses Claude Code's native tools
 - **Python 3.8+** - For running hooks and RLM tools
 
-### One-Command Install (Recommended)
+### Option 1: Modular Installers (Recommended for Testing)
+
+Install systems independently to test each one:
+
+```
+installers/
+├── system-a-session-persistence/   # Session Persistence & Searchable History
+├── system-b-rlm/                   # RLM Detection & Processing
+└── system-c-auto-skills/           # Auto Skills & Skills Library
+```
+
+**macOS/Linux:**
+```bash
+# Install individual systems
+./installers/system-a-session-persistence/install.sh
+./installers/system-b-rlm/install.sh
+./installers/system-c-auto-skills/install.sh
+
+# Uninstall (preserves data)
+./installers/system-a-session-persistence/uninstall.sh
+```
+
+**Windows:**
+```cmd
+installers\system-a-session-persistence\install.bat
+installers\system-b-rlm\install.bat
+installers\system-c-auto-skills\install.bat
+```
+
+### What Each System Installs
+
+| System | Hooks | Skills | Features |
+|--------|-------|--------|----------|
+| **A: Session Persistence** | 5 (session-recovery, live-session-indexer, history-indexer, history-search, hook_logger) | 1 (history) | Context recovery after compaction, searchable history |
+| **B: RLM Detection** | 2 (large-input-detector, hook_logger) | 1 (rlm) | Large document detection, RLM tools in `rlm_tools/` |
+| **C: Auto Skills** | 5 (skill-matcher, skill-tracker, detect-learning, learning-moment-pickup, hook_logger) | 18 skills | Skill matching, learning detection, full skills library |
+
+### Option 2: Full Installation (All Systems)
 
 ```bash
 # Download the standalone installer
@@ -482,11 +519,11 @@ chmod +x enhanced-claude-install.sh
 ./enhanced-claude-install.sh --check     # Check installation status
 ```
 
-### What Gets Installed
+### What Gets Installed (Full)
 
 **Global components** (`~/.claude/`):
 - 10 hooks (skill-matcher, large-input-detector, history-search, learning-moment-pickup, skill-tracker, detect-learning, history-indexer, live-session-indexer, session-recovery, + hook_logger)
-- 17 skills in skill-index
+- 18 skills in skill-index
 - settings.json with hook configuration
 - sessions/ and history/ directories
 
@@ -496,6 +533,13 @@ chmod +x enhanced-claude-install.sh
 - insights.md - Accumulated learnings
 - rlm_tools/ - RLM processing utilities
 - rlm_context/ - RLM working directory
+
+### Installer Features
+
+- **Auto-merge**: Settings.json is merged, not overwritten
+- **Backups**: Timestamped backups created before changes
+- **Shared logger**: `hook_logger.py` is shared across systems
+- **Safe uninstall**: Only removes hooks/skills, preserves data
 
 ### Post-Installation
 
