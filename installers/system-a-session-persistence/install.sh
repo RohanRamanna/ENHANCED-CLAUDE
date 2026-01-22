@@ -1603,6 +1603,143 @@ cat > "$SKILLS_DIR/history/metadata.json" << 'HISTORY_META_EOF'
 }
 HISTORY_META_EOF
 
+echo -e "${YELLOW}Creating project persistence files...${NC}"
+
+# ============================================
+# Create template files in current directory
+# ============================================
+PROJECT_DIR="$(pwd)"
+
+# Create context.md template if it doesn't exist
+if [ ! -f "$PROJECT_DIR/context.md" ]; then
+cat > "$PROJECT_DIR/context.md" << 'CONTEXT_TEMPLATE_EOF'
+# Context
+
+> **Purpose**: This file preserves the current goal/context across session compaction. Automatically loaded by `session-recovery.py` hook after `/compact` or `--resume`.
+
+## IMPORTANT: First-Time Setup
+
+**Claude, please add the following to this project's `CLAUDE.md` file** (create it if it doesn't exist):
+
+```markdown
+## Session Persistence
+
+This project uses automatic session persistence. After context compaction, Claude should:
+
+1. Read `context.md` for current goals and decisions
+2. Read `todos.md` for task progress
+3. Read `insights.md` for accumulated learnings
+
+**Update these files as you work:**
+- `context.md` - Update when goals change or key decisions are made
+- `todos.md` - Update when starting/completing tasks
+- `insights.md` - Update when discovering reusable patterns or learnings
+```
+
+---
+
+## Current Goal
+
+*Describe the current goal or objective here*
+
+## Key Decisions Made
+
+1. *Decision 1*
+2. *Decision 2*
+
+## Important Files
+
+| File | Purpose |
+|------|---------|
+| `file1.py` | *Description* |
+
+## Notes for Future Self
+
+- *Any important context that should survive compaction*
+
+---
+
+**Last Updated**: *Update this date when you modify this file*
+CONTEXT_TEMPLATE_EOF
+echo "  Created: context.md"
+fi
+
+# Create todos.md template if it doesn't exist
+if [ ! -f "$PROJECT_DIR/todos.md" ]; then
+cat > "$PROJECT_DIR/todos.md" << 'TODOS_TEMPLATE_EOF'
+# Todos
+
+> **Purpose**: Track task progress across session compaction. Automatically loaded by `session-recovery.py` hook.
+
+## In Progress
+
+- [ ] *Current task being worked on*
+
+## Pending (Priority)
+
+- [ ] *High priority task 1*
+- [ ] *High priority task 2*
+
+## Pending
+
+- [ ] *Regular task 1*
+- [ ] *Regular task 2*
+
+## Completed (This Session)
+
+- [x] *Completed task 1*
+- [x] *Completed task 2*
+
+## Completed (Previous Sessions)
+
+*Move completed tasks here to keep the file organized*
+
+---
+
+**Last Updated**: *Update this date when you modify this file*
+TODOS_TEMPLATE_EOF
+echo "  Created: todos.md"
+fi
+
+# Create insights.md template if it doesn't exist
+if [ ! -f "$PROJECT_DIR/insights.md" ]; then
+cat > "$PROJECT_DIR/insights.md" << 'INSIGHTS_TEMPLATE_EOF'
+# Insights
+
+> **Purpose**: Accumulate findings, learnings, and discoveries across sessions. Automatically loaded by `session-recovery.py` hook.
+
+## Key Learnings
+
+### *Topic 1*
+
+*What was learned and why it matters*
+
+### *Topic 2*
+
+*What was learned and why it matters*
+
+## Patterns Identified
+
+- *Reusable pattern 1*
+- *Reusable pattern 2*
+
+## Gotchas & Pitfalls
+
+- *Thing that didn't work and why*
+- *Common mistake to avoid*
+
+## Remaining Questions
+
+- *Open question 1*
+- *Open question 2*
+
+---
+
+**Last Updated**: *Update this date when you modify this file*
+INSIGHTS_TEMPLATE_EOF
+echo "  Created: insights.md"
+fi
+
 echo -e "${YELLOW}Configuring Claude Code settings...${NC}"
 
 # ============================================

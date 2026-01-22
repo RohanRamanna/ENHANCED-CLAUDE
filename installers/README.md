@@ -46,10 +46,16 @@ system-a-session-persistence\uninstall.bat
 **Skills:**
 - `history` - Search and retrieve past conversations
 
+**Template Files (created in project directory):**
+- `context.md` - Current goal and key decisions (includes instructions for Claude to update CLAUDE.md)
+- `todos.md` - Task progress tracking
+- `insights.md` - Accumulated learnings and patterns
+
 **Features:**
 - Automatic context recovery after compaction
 - Searchable history index
 - Zero data duplication
+- Ready-to-use persistence templates
 
 ### System B: RLM Detection & Processing
 

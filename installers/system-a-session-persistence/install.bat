@@ -383,6 +383,138 @@ $settings | ConvertTo-Json -Depth 10 | Out-File $settingsFile -Encoding utf8; ^
 Write-Host '  Settings updated'; ^
 ^"
 
+echo Creating project persistence files...
+
+REM Create context.md template if it doesn't exist
+if not exist "context.md" (
+    (
+        echo # Context
+        echo.
+        echo ^> **Purpose**: This file preserves the current goal/context across session compaction. Automatically loaded by `session-recovery.py` hook after `/compact` or `--resume`.
+        echo.
+        echo ## IMPORTANT: First-Time Setup
+        echo.
+        echo **Claude, please add the following to this project's `CLAUDE.md` file** ^(create it if it doesn't exist^):
+        echo.
+        echo ```markdown
+        echo ## Session Persistence
+        echo.
+        echo This project uses automatic session persistence. After context compaction, Claude should:
+        echo.
+        echo 1. Read `context.md` for current goals and decisions
+        echo 2. Read `todos.md` for task progress
+        echo 3. Read `insights.md` for accumulated learnings
+        echo.
+        echo **Update these files as you work:**
+        echo - `context.md` - Update when goals change or key decisions are made
+        echo - `todos.md` - Update when starting/completing tasks
+        echo - `insights.md` - Update when discovering reusable patterns or learnings
+        echo ```
+        echo.
+        echo ---
+        echo.
+        echo ## Current Goal
+        echo.
+        echo *Describe the current goal or objective here*
+        echo.
+        echo ## Key Decisions Made
+        echo.
+        echo 1. *Decision 1*
+        echo 2. *Decision 2*
+        echo.
+        echo ## Important Files
+        echo.
+        echo ^| File ^| Purpose ^|
+        echo ^|------^|---------^|
+        echo ^| `file1.py` ^| *Description* ^|
+        echo.
+        echo ## Notes for Future Self
+        echo.
+        echo - *Any important context that should survive compaction*
+        echo.
+        echo ---
+        echo.
+        echo **Last Updated**: *Update this date when you modify this file*
+    ) > context.md
+    echo   Created: context.md
+)
+
+REM Create todos.md template if it doesn't exist
+if not exist "todos.md" (
+    (
+        echo # Todos
+        echo.
+        echo ^> **Purpose**: Track task progress across session compaction. Automatically loaded by `session-recovery.py` hook.
+        echo.
+        echo ## In Progress
+        echo.
+        echo - [ ] *Current task being worked on*
+        echo.
+        echo ## Pending ^(Priority^)
+        echo.
+        echo - [ ] *High priority task 1*
+        echo - [ ] *High priority task 2*
+        echo.
+        echo ## Pending
+        echo.
+        echo - [ ] *Regular task 1*
+        echo - [ ] *Regular task 2*
+        echo.
+        echo ## Completed ^(This Session^)
+        echo.
+        echo - [x] *Completed task 1*
+        echo - [x] *Completed task 2*
+        echo.
+        echo ## Completed ^(Previous Sessions^)
+        echo.
+        echo *Move completed tasks here to keep the file organized*
+        echo.
+        echo ---
+        echo.
+        echo **Last Updated**: *Update this date when you modify this file*
+    ) > todos.md
+    echo   Created: todos.md
+)
+
+REM Create insights.md template if it doesn't exist
+if not exist "insights.md" (
+    (
+        echo # Insights
+        echo.
+        echo ^> **Purpose**: Accumulate findings, learnings, and discoveries across sessions. Automatically loaded by `session-recovery.py` hook.
+        echo.
+        echo ## Key Learnings
+        echo.
+        echo ### *Topic 1*
+        echo.
+        echo *What was learned and why it matters*
+        echo.
+        echo ### *Topic 2*
+        echo.
+        echo *What was learned and why it matters*
+        echo.
+        echo ## Patterns Identified
+        echo.
+        echo - *Reusable pattern 1*
+        echo - *Reusable pattern 2*
+        echo.
+        echo ## Gotchas ^& Pitfalls
+        echo.
+        echo - *Thing that didn't work and why*
+        echo - *Common mistake to avoid*
+        echo.
+        echo ## Remaining Questions
+        echo.
+        echo - *Open question 1*
+        echo - *Open question 2*
+        echo.
+        echo ---
+        echo.
+        echo **Last Updated**: *Update this date when you modify this file*
+    ) > insights.md
+    echo   Created: insights.md
+)
+
 echo.
 echo ==============================================
 echo   Installation Complete!
