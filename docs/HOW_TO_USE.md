@@ -23,24 +23,25 @@ This repository provides **five integrated systems** for Claude Code, all powere
 
 ## Quick Start
 
-### Step 1: Run the Installer
+### Step 1: Install the Systems
 
 ```bash
-# Download the standalone installer
-curl -O https://raw.githubusercontent.com/RohanRamanna/ENHANCED-CLAUDE/main/enhanced-claude-install.sh
-chmod +x enhanced-claude-install.sh
+# Clone the repo
+git clone https://github.com/RohanRamanna/ENHANCED-CLAUDE.git
+cd ENHANCED-CLAUDE/installers
 
-# Run it (interactive menu)
-./enhanced-claude-install.sh
+# Install all systems (run from your project directory)
+cd /path/to/your/project
+/path/to/ENHANCED-CLAUDE/installers/system-a-session-persistence/install.sh
+/path/to/ENHANCED-CLAUDE/installers/system-b-rlm/install.sh
+/path/to/ENHANCED-CLAUDE/installers/system-c-auto-skills/install.sh
 ```
 
-Choose from:
-1. **Full install** - Global components + project setup (recommended for first time)
-2. **Global only** - Just hooks and skills (run once, works for all projects)
-3. **Project only** - Just persistence files and RLM tools (for new projects)
-4. **Check status** - Verify what's installed
+### Step 2: Configure Your Project
 
-### Step 2: Just Use Claude Code
+After installation, read each system's `INSTRUCTIONS.md` for the CLAUDE.md configuration text to add to your project.
+
+### Step 3: Just Use Claude Code
 
 That's it! All 5 systems work automatically:
 
@@ -467,9 +468,9 @@ cat ~/.claude/skills/skill-name/SKILL.md
 - **Claude Code** (CLI) - The system uses Claude Code's native tools
 - **Python 3.8+** - For running hooks and RLM tools
 
-### Option 1: Modular Installers (Recommended for Testing)
+### Modular Installers
 
-Install systems independently to test each one:
+Install systems independently:
 
 ```
 installers/
@@ -516,36 +517,23 @@ Each installer includes an `INSTRUCTIONS.md` with:
 3. **What gets installed** - List of hooks, skills, and files
 4. **Verification commands** - Commands to confirm installation worked
 
-### Option 2: Full Installation (All Systems)
+### Install All Systems
+
+To install everything:
 
 ```bash
-# Download the standalone installer
-curl -O https://raw.githubusercontent.com/RohanRamanna/ENHANCED-CLAUDE/main/enhanced-claude-install.sh
-chmod +x enhanced-claude-install.sh
-
-# Run with interactive menu
-./enhanced-claude-install.sh
-
-# Or use CLI flags for non-interactive install
-./enhanced-claude-install.sh --global    # Install global components only
-./enhanced-claude-install.sh --project   # Install project components only
-./enhanced-claude-install.sh --check     # Check installation status
+# macOS/Linux
+./installers/system-a-session-persistence/install.sh
+./installers/system-b-rlm/install.sh
+./installers/system-c-auto-skills/install.sh
 ```
 
-### What Gets Installed (Full)
-
-**Global components** (`~/.claude/`):
-- 10 hooks (skill-matcher, large-input-detector, history-search, learning-moment-pickup, skill-tracker, detect-learning, history-indexer, live-session-indexer, session-recovery, + hook_logger)
-- 18 skills in skill-index
-- settings.json with hook configuration
-- sessions/ and history/ directories
-
-**Project components** (current directory):
-- context.md - Current goal tracking (includes first-time setup instructions)
-- todos.md - Task progress tracking
-- insights.md - Accumulated learnings
-- rlm_tools/ - RLM processing utilities
-- rlm_context/ - RLM working directory
+```cmd
+:: Windows
+installers\system-a-session-persistence\install.bat
+installers\system-b-rlm\install.bat
+installers\system-c-auto-skills\install.bat
+```
 
 ### Template Files (System A)
 
