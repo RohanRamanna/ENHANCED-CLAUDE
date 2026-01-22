@@ -374,6 +374,41 @@ This project uses automatic session persistence...
 
 **Why this matters**: The installer can't know every project's structure, but the AI can adapt. Templates bridge the gap between generic installation and project-specific configuration.
 
+### INSTRUCTIONS.md Pattern (Phase 17)
+
+Each installer should include an `INSTRUCTIONS.md` file that provides Claude with:
+
+1. **Installation commands** - Exact commands for both platforms
+2. **CLAUDE.md configuration** - Copy-paste ready text block
+3. **What gets installed** - Complete list of components
+4. **Verification commands** - How to confirm it worked
+
+**Structure**:
+```markdown
+# System X: Name
+
+## Installation
+[Commands for macOS/Linux and Windows]
+
+## CLAUDE.md Configuration
+**Add the following to the project's `CLAUDE.md` file:**
+```markdown
+[Copy-paste ready configuration block]
+```
+
+## What Gets Installed
+[Tables of hooks, skills, files]
+
+## Verification
+[Bash commands to check installation]
+```
+
+**Why this matters**:
+- Users don't need to read source code to understand what to add to CLAUDE.md
+- Claude can read INSTRUCTIONS.md and configure the project automatically
+- Separates "how to install" from "how to configure" clearly
+- Each system is fully documented independently
+
 ## Remaining Questions
 
 - What's the optimal chunk size for different document types?

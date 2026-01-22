@@ -18,13 +18,19 @@
 
 ## Completed (This Session)
 
-### Phase 17: Template Files & Testing Documentation
+### Phase 17: Template Files, Testing & INSTRUCTIONS.md
 - [x] Add template file creation to System A installer (`context.md`, `todos.md`, `insights.md`)
 - [x] Add self-bootstrapping instructions to `context.md` template (instructs Claude to update project's CLAUDE.md)
 - [x] Create `installers/TESTING.md` with manual verification steps for all 3 systems
 - [x] Update `installers/README.md` to document template files
 - [x] Resolve merge conflicts when syncing public repo
 - [x] Push changes to both private and public repos
+- [x] Create `INSTRUCTIONS.md` for System A (install commands, CLAUDE.md config, verification)
+- [x] Create `INSTRUCTIONS.md` for System B (install commands, CLAUDE.md config, verification)
+- [x] Create `INSTRUCTIONS.md` for System C (install commands, CLAUDE.md config, verification)
+- [x] Update `README.md` with modular installer priority and INSTRUCTIONS.md info
+- [x] Update `docs/HOW_TO_USE.md` with INSTRUCTIONS.md section and template files
+- [x] Push all changes to private and public repos
 
 ### Phase 16: Modular System Installers
 - [x] Create System A installer (Session Persistence & History)
