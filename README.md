@@ -4,7 +4,8 @@
 
 [![Status](https://img.shields.io/badge/status-fully_automatic-brightgreen)]()
 [![Systems](https://img.shields.io/badge/systems-5-blue)]()
-[![Hooks](https://img.shields.io/badge/hooks-8-purple)]()
+[![Hooks](https://img.shields.io/badge/hooks-9-purple)]()
+[![Skills](https://img.shields.io/badge/skills-18-orange)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 
 ## Overview
@@ -16,7 +17,7 @@ This repository transforms Claude Code into **Enhanced Claude** - a self-improvi
 3. **Self-improves** - Skills automatically matched, tracked, and learning moments detected
 4. **Searchable history** - Find past solutions without filling context
 
-**Everything is automatic via 8 Claude Code hooks.**
+**Everything is automatic via 9 Claude Code hooks.**
 
 ## Quick Start
 
@@ -47,7 +48,7 @@ The installer offers:
 | | `detect-learning.py` | Auto-detects trial-and-error, offers skill creation |
 | **Searchable History** | `history-indexer.py` | Indexes conversations on session end |
 | | `history-search.py` | Suggests relevant past sessions |
-| **Skills Library** | Manual | 17 skills invoked via `/skill-name` |
+| **Skills Library** | Manual | 18 skills invoked via `/skill-name` |
 
 ---
 
@@ -99,7 +100,7 @@ All automation is powered by **9 Python hooks** in `~/.claude/hooks/`:
 
 ---
 
-## Skills Library (17 Skills)
+## Skills Library (18 Skills)
 
 | Category | Skills |
 |----------|--------|
@@ -108,6 +109,7 @@ All automation is powered by **9 Python hooks** in `~/.claude/hooks/`:
 | **API** (1) | llm-api-tool-use |
 | **Utility** (3) | markdown-to-pdf, history, rlm |
 | **Workflow** (1) | udcp |
+| **Development** (1) | hook-development |
 | **Fallback** (1) | web-research |
 
 **Usage**: Skills are auto-suggested, or invoke manually with `/skill-name`
@@ -169,7 +171,7 @@ PERSISTANT MEMORY/
 ├── context.md             # Session persistence: current goal
 ├── todos.md               # Session persistence: task tracking
 ├── insights.md            # Session persistence: learnings
-├── skills/                # Skills library (17 skills)
+├── skills/                # Skills library (18 skills)
 │   └── */SKILL.md
 ├── rlm_tools/             # RLM processing tools
 │   ├── probe.py           # Analyze structure
@@ -206,7 +208,48 @@ PERSISTANT MEMORY/
 
 ## Installation
 
-### One-Command Install (Recommended)
+### Option 1: Modular Installers (Recommended)
+
+Install systems independently for testing and evaluation:
+
+```
+installers/
+├── system-a-session-persistence/   # Session Persistence & Searchable History
+│   ├── install.sh / install.bat    # Installers
+│   ├── uninstall.sh / uninstall.bat
+│   └── INSTRUCTIONS.md             # Claude instructions for setup
+├── system-b-rlm/                   # RLM Detection & Processing
+│   └── ...
+└── system-c-auto-skills/           # Auto Skills & Skills Library
+    └── ...
+```
+
+**macOS/Linux:**
+```bash
+cd /path/to/your/project
+/path/to/installers/system-a-session-persistence/install.sh
+```
+
+**Windows:**
+```cmd
+cd \path\to\your\project
+\path\to\installers\system-a-session-persistence\install.bat
+```
+
+### What Each System Installs
+
+| System | Hooks | Skills | Template Files | Features |
+|--------|-------|--------|----------------|----------|
+| **A: Session Persistence** | 5 | 1 (history) | context.md, todos.md, insights.md | Context recovery, searchable history |
+| **B: RLM Detection** | 2 | 1 (rlm) | - | Large input detection, RLM tools |
+| **C: Auto Skills** | 5 | 18 | - | Skill matching, learning detection |
+
+Each installer includes an `INSTRUCTIONS.md` with:
+- Installation commands
+- CLAUDE.md configuration (copy-paste ready)
+- Verification steps
+
+### Option 2: Full Installation (All Systems)
 
 ```bash
 # Download and run the standalone installer
@@ -220,7 +263,7 @@ chmod +x enhanced-claude-install.sh
 | Option | Installs |
 |--------|----------|
 | **Full install** | Global (hooks, skills, settings) + Project (persistence files, RLM tools) |
-| **Global only** | 10 hooks, 17 skills, settings.json in `~/.claude/` |
+| **Global only** | 10 hooks, 18 skills, settings.json in `~/.claude/` |
 | **Project only** | context.md, todos.md, insights.md, rlm_tools/ in current directory |
 
 ### CLI Flags
