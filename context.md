@@ -64,6 +64,7 @@ Each system has:
 | `installers/README.md` | Installer documentation |
 | `installers/system-*/install.sh` | macOS/Linux installers |
 | `installers/system-*/install.bat` | Windows installers |
+| `installers/system-*/INSTRUCTIONS.md` | Claude setup instructions per system |
 | `CLAUDE.md` | Main guidance with hooks documentation |
 | `docs/HOW_TO_USE.md` | Complete usage guide |
 
@@ -100,12 +101,25 @@ After /compact:
 - Uninstall preserves data (sessions, history, rlm_tools)
 - Run `/hooks` after installation to reload hooks
 
-## Latest Work: Template Files & Testing Guide (Phase 16 cont.)
+## Latest Work: INSTRUCTIONS.md & Documentation (Phase 17)
 
-Added to System A installer:
-- **Template file creation** - `context.md`, `todos.md`, `insights.md` created automatically in project directory
-- **Self-bootstrapping** - `context.md` template includes instructions for Claude to update project's `CLAUDE.md` with session persistence guidance
-- **Testing documentation** - Created `installers/TESTING.md` with manual verification steps for all 3 systems
+Added `INSTRUCTIONS.md` to each system installer:
+
+| System | INSTRUCTIONS.md Contents |
+|--------|--------------------------|
+| **A: Session Persistence** | Install commands, CLAUDE.md config for persistence files, verification |
+| **B: RLM Detection** | Install commands, CLAUDE.md config for RLM tools, verification |
+| **C: Auto Skills** | Install commands, CLAUDE.md config for skill system, verification |
+
+Each `INSTRUCTIONS.md` provides:
+1. **Installation commands** - macOS/Linux and Windows
+2. **CLAUDE.md configuration** - Copy-paste ready markdown block
+3. **What gets installed** - List of hooks, skills, files
+4. **Verification commands** - Commands to confirm installation
+
+Updated documentation:
+- `README.md` - Prioritized modular installers, added INSTRUCTIONS.md info
+- `docs/HOW_TO_USE.md` - Added INSTRUCTIONS.md section, template files info
 
 ### What's Fully Automatic Per System
 
@@ -115,12 +129,12 @@ Added to System A installer:
 | **B: RLM Detection** | Detection of large inputs | RLM processing workflow |
 | **C: Auto Skills** | Skill matching suggestions | Loading suggested skills |
 
-## Git Status (Phase 16)
+## Git Status (Phase 17)
 
-- Commit: `4dde5d9` - Add template files to System A installer and testing guide
+- Commit: `abac9b4` - Add INSTRUCTIONS.md files and update documentation
 - Pushed to: `origin/main` (private repo)
 - Pushed to: `public/main` (public repo via public-release branch)
 
 ---
 
-**Last Updated**: 2026-01-21
+**Last Updated**: 2026-01-22

@@ -21,18 +21,25 @@ This repository transforms Claude Code into **Enhanced Claude** - a self-improvi
 
 ## Quick Start
 
+Install the systems you need:
+
 ```bash
-# Download and run the installer
-curl -O https://raw.githubusercontent.com/RohanRamanna/ENHANCED-CLAUDE/main/enhanced-claude-install.sh
-chmod +x enhanced-claude-install.sh
-./enhanced-claude-install.sh
+# Clone the repo
+git clone https://github.com/RohanRamanna/ENHANCED-CLAUDE.git
+cd ENHANCED-CLAUDE/installers
+
+# Install all systems (recommended)
+./system-a-session-persistence/install.sh
+./system-b-rlm/install.sh
+./system-c-auto-skills/install.sh
+
+# Or install just what you need
+./system-a-session-persistence/install.sh  # Session persistence only
 ```
 
-The installer offers:
-1. **Full install** - Global hooks/skills + project setup
-2. **Global only** - Just hooks and skills (works for all projects)
-3. **Project only** - Just persistence files and RLM tools
-4. **Check status** - Verify installation
+After installation:
+1. Run `/hooks` in Claude Code to reload hooks
+2. Read the `INSTRUCTIONS.md` in each installer for CLAUDE.md configuration
 
 ---
 
@@ -208,9 +215,9 @@ PERSISTANT MEMORY/
 
 ## Installation
 
-### Option 1: Modular Installers (Recommended)
+### Modular Installers
 
-Install systems independently for testing and evaluation:
+Install systems independently:
 
 ```
 installers/
@@ -245,37 +252,31 @@ cd \path\to\your\project
 | **C: Auto Skills** | 5 | 18 | - | Skill matching, learning detection |
 
 Each installer includes an `INSTRUCTIONS.md` with:
-- Installation commands
+- Installation commands for macOS/Linux and Windows
 - CLAUDE.md configuration (copy-paste ready)
 - Verification steps
 
-### Option 2: Full Installation (All Systems)
+### Install All Systems
 
 ```bash
-# Download and run the standalone installer
-curl -O https://raw.githubusercontent.com/RohanRamanna/ENHANCED-CLAUDE/main/enhanced-claude-install.sh
-chmod +x enhanced-claude-install.sh
-./enhanced-claude-install.sh
+# macOS/Linux
+./installers/system-a-session-persistence/install.sh
+./installers/system-b-rlm/install.sh
+./installers/system-c-auto-skills/install.sh
 ```
 
-### What the Installer Does
-
-| Option | Installs |
-|--------|----------|
-| **Full install** | Global (hooks, skills, settings) + Project (persistence files, RLM tools) |
-| **Global only** | 10 hooks, 18 skills, settings.json in `~/.claude/` |
-| **Project only** | context.md, todos.md, insights.md, rlm_tools/ in current directory |
-
-### CLI Flags
-
-```bash
-./enhanced-claude-install.sh --global    # Non-interactive global install
-./enhanced-claude-install.sh --project   # Non-interactive project install
-./enhanced-claude-install.sh --check     # Verify installation status
-./enhanced-claude-install.sh --help      # Show help
+```cmd
+:: Windows
+installers\system-a-session-persistence\install.bat
+installers\system-b-rlm\install.bat
+installers\system-c-auto-skills\install.bat
 ```
 
-After installation, reload hooks in Claude Code with `/hooks`.
+### After Installation
+
+1. Run `/hooks` in Claude Code to reload hooks
+2. Read each system's `INSTRUCTIONS.md` for CLAUDE.md configuration
+3. See `installers/TESTING.md` for verification steps
 
 ---
 
