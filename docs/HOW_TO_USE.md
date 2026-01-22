@@ -428,7 +428,7 @@ When you ask about something you've worked on before:
 
 **Problem**: Useful patterns and workflows are forgotten between sessions.
 
-**Solution**: 16 reusable skills loaded on-demand.
+**Solution**: 18 reusable skills loaded on-demand.
 
 ### Available Skills
 
@@ -439,6 +439,7 @@ When you ask about something you've worked on before:
 | **API** (1) | llm-api-tool-use |
 | **Utility** (3) | markdown-to-pdf, history, rlm |
 | **Workflow** (1) | udcp |
+| **Development** (1) | hook-development |
 | **Fallback** (1) | web-research |
 
 ### How to Use Skills
@@ -473,35 +474,47 @@ Install systems independently to test each one:
 ```
 installers/
 ├── system-a-session-persistence/   # Session Persistence & Searchable History
+│   ├── install.sh / install.bat    # Installers
+│   ├── uninstall.sh / uninstall.bat
+│   └── INSTRUCTIONS.md             # Claude instructions for setup
 ├── system-b-rlm/                   # RLM Detection & Processing
+│   └── ...
 └── system-c-auto-skills/           # Auto Skills & Skills Library
+    └── ...
 ```
 
 **macOS/Linux:**
 ```bash
-# Install individual systems
-./installers/system-a-session-persistence/install.sh
-./installers/system-b-rlm/install.sh
-./installers/system-c-auto-skills/install.sh
-
-# Uninstall (preserves data)
-./installers/system-a-session-persistence/uninstall.sh
+cd /path/to/your/project
+/path/to/installers/system-a-session-persistence/install.sh
 ```
 
 **Windows:**
 ```cmd
-installers\system-a-session-persistence\install.bat
-installers\system-b-rlm\install.bat
-installers\system-c-auto-skills\install.bat
+cd \path\to\your\project
+\path\to\installers\system-a-session-persistence\install.bat
 ```
+
+**After installation**, read the `INSTRUCTIONS.md` file in the installer directory for:
+- CLAUDE.md configuration text to copy into your project
+- Verification commands
+- Usage guidance
 
 ### What Each System Installs
 
-| System | Hooks | Skills | Features |
-|--------|-------|--------|----------|
-| **A: Session Persistence** | 5 (session-recovery, live-session-indexer, history-indexer, history-search, hook_logger) | 1 (history) | Context recovery after compaction, searchable history |
-| **B: RLM Detection** | 2 (large-input-detector, hook_logger) | 1 (rlm) | Large document detection, RLM tools in `rlm_tools/` |
-| **C: Auto Skills** | 5 (skill-matcher, skill-tracker, detect-learning, learning-moment-pickup, hook_logger) | 18 skills | Skill matching, learning detection, full skills library |
+| System | Hooks | Skills | Template Files | Features |
+|--------|-------|--------|----------------|----------|
+| **A: Session Persistence** | 5 | 1 (history) | context.md, todos.md, insights.md | Context recovery, searchable history |
+| **B: RLM Detection** | 2 | 1 (rlm) | - | Large input detection, RLM tools |
+| **C: Auto Skills** | 5 | 18 | - | Skill matching, learning detection |
+
+### INSTRUCTIONS.md Files
+
+Each installer includes an `INSTRUCTIONS.md` with:
+1. **Installation commands** - Exact commands for macOS/Linux and Windows
+2. **CLAUDE.md configuration** - Copy-paste ready text to add to your project's CLAUDE.md
+3. **What gets installed** - List of hooks, skills, and files
+4. **Verification commands** - Commands to confirm installation worked
 
 ### Option 2: Full Installation (All Systems)
 
@@ -528,11 +541,26 @@ chmod +x enhanced-claude-install.sh
 - sessions/ and history/ directories
 
 **Project components** (current directory):
-- context.md - Current goal tracking
+- context.md - Current goal tracking (includes first-time setup instructions)
 - todos.md - Task progress tracking
 - insights.md - Accumulated learnings
 - rlm_tools/ - RLM processing utilities
 - rlm_context/ - RLM working directory
+
+### Template Files (System A)
+
+When System A is installed, it creates three template files in your project directory:
+
+| File | Purpose | First-Time Setup |
+|------|---------|------------------|
+| `context.md` | Current goal and key decisions | Includes instructions for Claude to add session persistence guidance to CLAUDE.md |
+| `todos.md` | Task progress tracking | Ready to use |
+| `insights.md` | Accumulated learnings | Ready to use |
+
+On first use after installation, Claude should:
+1. Read the `context.md` template
+2. Add the session persistence section to the project's `CLAUDE.md`
+3. Start using the persistence files normally
 
 ### Installer Features
 

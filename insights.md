@@ -311,6 +311,27 @@ Created `~/.claude/skills/hook-development/SKILL.md` documenting:
 - ~~How to make session persistence automatic?~~ → **Yes, via session-recovery.py hook**
 - ~~How to search past conversations without loading everything?~~ → **Searchable history with index pointers**
 
+### Self-Bootstrapping Installers (Phase 17)
+
+For truly automatic systems, installers should create template files that instruct the AI to complete setup:
+
+**Pattern**:
+1. Installer creates template files (e.g., `context.md`, `todos.md`, `insights.md`)
+2. Template includes instructions for AI to update project configuration (e.g., CLAUDE.md)
+3. On first use, AI reads template → updates config → system becomes fully automatic
+
+**Example** (System A context.md template):
+```markdown
+## IMPORTANT: First-Time Setup
+
+**Claude, please add the following to this project's `CLAUDE.md` file**:
+
+## Session Persistence
+This project uses automatic session persistence...
+```
+
+**Why this matters**: The installer can't know every project's structure, but the AI can adapt. Templates bridge the gap between generic installation and project-specific configuration.
+
 ## Remaining Questions
 
 - What's the optimal chunk size for different document types?
@@ -320,4 +341,4 @@ Created `~/.claude/skills/hook-development/SKILL.md` documenting:
 
 ---
 
-**Last Updated**: 2026-01-21
+**Last Updated**: 2026-01-22
