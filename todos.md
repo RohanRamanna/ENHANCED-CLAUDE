@@ -18,6 +18,14 @@
 
 ## Completed (This Session)
 
+### Phase 17: Template Files & Testing Documentation
+- [x] Add template file creation to System A installer (`context.md`, `todos.md`, `insights.md`)
+- [x] Add self-bootstrapping instructions to `context.md` template (instructs Claude to update project's CLAUDE.md)
+- [x] Create `installers/TESTING.md` with manual verification steps for all 3 systems
+- [x] Update `installers/README.md` to document template files
+- [x] Resolve merge conflicts when syncing public repo
+- [x] Push changes to both private and public repos
+
 ### Phase 16: Modular System Installers
 - [x] Create System A installer (Session Persistence & History)
   - `install.sh` with 5 hooks embedded (session-recovery, live-session-indexer, history-indexer, history-search, hook_logger)
@@ -179,4 +187,4 @@
 
 ---
 
-**Last Updated**: 2026-01-21
+**Last Updated**: 2026-01-22

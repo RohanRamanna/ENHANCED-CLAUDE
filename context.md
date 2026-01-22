@@ -100,9 +100,24 @@ After /compact:
 - Uninstall preserves data (sessions, history, rlm_tools)
 - Run `/hooks` after installation to reload hooks
 
+## Latest Work: Template Files & Testing Guide (Phase 16 cont.)
+
+Added to System A installer:
+- **Template file creation** - `context.md`, `todos.md`, `insights.md` created automatically in project directory
+- **Self-bootstrapping** - `context.md` template includes instructions for Claude to update project's `CLAUDE.md` with session persistence guidance
+- **Testing documentation** - Created `installers/TESTING.md` with manual verification steps for all 3 systems
+
+### What's Fully Automatic Per System
+
+| System | Automatic | Manual |
+|--------|-----------|--------|
+| **A: Session Persistence** | Everything (hooks + templates) | Nothing |
+| **B: RLM Detection** | Detection of large inputs | RLM processing workflow |
+| **C: Auto Skills** | Skill matching suggestions | Loading suggested skills |
+
 ## Git Status (Phase 16)
 
-- Commit: `29233ad` - Add modular system installers for independent testing
+- Commit: `4dde5d9` - Add template files to System A installer and testing guide
 - Pushed to: `origin/main` (private repo)
 - Pushed to: `public/main` (public repo via public-release branch)
 
